@@ -13,3 +13,8 @@ class BezierCurve:
         x = (1 - t)**3 * self.x0 + 3 * (1 - t)**2 * t * self.x1 + 3 * (1 - t) * t**2 * self.x2 + t**3 * self.x3
         y = (1 - t)**3 * self.y0 + 3 * (1 - t)**2 * t * self.y1 + 3 * (1 - t) * t**2 * self.y2 + t**3 * self.y3
         return x, y
+    def linearize(self):
+        self.x1 = self.x0
+        self.y1 = self.y0
+        self.x2 = self.x3
+        self.y2 = self.y3

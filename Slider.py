@@ -17,10 +17,11 @@ class Slider:
         pygame.draw.rect(screen, (255, 255, 255), (self.x, self.y, self.width, self.height))
         # Draw a circle for the slider handle
         handle_x = self.x + (self.value - self.min_val) / (self.max_val - self.min_val) * self.width
-        pygame.draw.circle(screen, (255, 0, 0), (int(handle_x), self.y + self.height // 2), 10)
+        pygame.draw.rect(screen, (255, 0, 0), (int(handle_x) - 8, self.y, 16, self.height))
         # Draw the name of the slider and its value
         font = pygame.font.Font(None, 36)
-        text = font.render(f"{self.name}: {self.value:.2f}", True, (255, 255, 255))
+        changed_value = self.value / 7.5
+        text = font.render(f"{self.name}: {changed_value:.2f}", True, (255, 255, 255))
         screen.blit(text, (self.x, self.y - 40))
 
     def handle_event(self, event):
