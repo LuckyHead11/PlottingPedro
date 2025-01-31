@@ -1,7 +1,7 @@
 import pygame
 
 class Slider:
-    def __init__(self, x, y, width, height, min_val=0, max_val=100, initial_val=0, name="Slider"):
+    def __init__(self, x, y, width, height, min_val=0, max_val=100, initial_val=0, name="Slider",scale=1):
         self.x = x
         self.y = y
         self.width = width
@@ -11,18 +11,19 @@ class Slider:
         self.value = initial_val
         self.name = name
         self.dragging = False
+        self.scale = scale
 
     def draw(self, screen):
         # Draw a rectangle for the slider track
         pygame.draw.rect(screen, (255, 255, 255), (self.x, self.y, self.width, self.height))
-        # Draw a circle for the slider handle
+        # Draw a circle for the slider handles
         handle_x = self.x + (self.value - self.min_val) / (self.max_val - self.min_val) * self.width
         pygame.draw.rect(screen, (255, 0, 0), (int(handle_x) - 8, self.y, 16, self.height))
         # Draw the name of the slider and its value
-        font = pygame.font.Font(None, 36)
-        changed_value = self.value / 7.5
+        font = pygame.font.Font(None, 36 // (self.scale))
+        changed_value = self.value
         text = font.render(f"{self.name}: {changed_value:.2f}", True, (255, 255, 255))
-        screen.blit(text, (self.x, self.y - 40))
+        screen.blit(text, (self.x, self.y - 40 // self.scale))
 
     def handle_event(self, event):
         if event.type == pygame.MOUSEBUTTONDOWN:

@@ -4,7 +4,13 @@ import sys
 from BezierCurve import BezierCurve
 from Slider import Slider
 from Button import Button
-        
+import json
+
+with open('config.txt', 'r') as file:
+    config = json.load(file)
+    scale = config.get('scale')
+    field_img = config.get("fieldImg")
+divider = (1080 // scale) // 144
 curves = []
 current_curve = 0
 
@@ -20,15 +26,17 @@ LIGHT_PURPLE = (255, 0, 255)
 PURPLE = (128, 0, 128)
 WHITE = (255, 255, 255)
 BLACK = (0, 0, 0)
+YELLOW = (255, 255, 0)
+DARK_YELLOW = (200, 200, 0)
 LIGHT_GRAY = (200, 200, 200)
 
-padding = 100
-x1_slider = Slider(1100, 100, 100, 20, 0, 1080, 0, "x1")
-y1_slider = Slider(1100, 100 + padding, 100, 20, 0, 1080, 0, "y1")
-x2_slider = Slider(1100, 100 + (padding * 2), 100, 20, 0, 1080, 0, "x2")
-y2_slider = Slider(1100, 100 + (padding * 3), 100, 20, 0, 1080, 0, "y2")
-linear_button = Button(1100, 100 + (padding * 4), 150, 45, "Linearize", 36,BLACK, WHITE, LIGHT_GRAY)
-clear_button = Button(1100, 100 + (padding * 4.5), 100, 45, "Clear", 36,BLACK, WHITE, LIGHT_GRAY)
+padding = 100 // scale
+x1_slider = Slider(1100 // scale, 100 // scale, 100, 20 // scale, 0, 1080 // scale, 0, "x1", scale=scale)
+y1_slider = Slider(1100 // scale, 100 // scale + padding, 100 // scale, 20 // scale, 0, 1080 // scale, 0, "y1", scale=scale)
+x2_slider = Slider(1100 // scale, 100 // scale + (padding * 2), 100 // scale, 20 // scale, 0, 1080 // scale, 0, "x2", scale=scale)
+y2_slider = Slider(1100 // scale, 100 // scale + (padding * 3), 100 // scale, 20 // scale, 0, 1080 // scale, 0, "y2", scale=scale)
+linear_button = Button(1100 // scale, 100 // scale + (padding * 4), 150 // scale, 45 // scale, "Linearize", 36 // scale,BLACK, WHITE, LIGHT_GRAY)
+clear_button = Button(1100 // scale, 100 // scale + (padding * 4.5), 100 // scale, 45 // scale, "Clear", 36 // scale,BLACK, WHITE, LIGHT_GRAY)
 state = STATES["START"]
 
 startX = 0
@@ -40,21 +48,20 @@ endY = 0
 current_mouseX = 0
 current_mouseY = 0
 
-field_image = pygame.image.load("fields/dark.png")
-field_image = pygame.transform.scale(field_image, (1080, 1080))
-
+field_image = pygame.image.load(field_img)
+field_image = pygame.transform.scale(field_image, (field_image.get_width() // scale, field_image.get_height() // scale))
 selected_point = None
 selected_curve = None
 # Initialize Pygame
 pygame.init()
 
 # Set up the display
-width, height = 1600, 1080
+width, height = 1600 // scale, 1080 // scale
 screen = pygame.display.set_mode((width, height))
 pygame.display.set_caption("Plotting Pedro")
 
 def field_to_inches(x, y):
-    return round(x / 7.5, 1), round(y / 7.5, 1)
+    return round(x / divider, 1), round(y / divider, 1)
 
 def draw():
     screen.fill((0, 0, 0)) # Clear the screen
@@ -66,28 +73,29 @@ def draw():
     for curve in curves:
         #Draw a small circle at the start and end points
         pygame.draw.circle(screen, RED, (int(curve.x0), int(curve.y0)), 6)
-        pygame.draw.circle(screen, RED, (int(curve.x3), int(curve.y3)), 6)
+        pygame.draw.circle(screen, GREEN, (int(curve.x3), int(curve.y3)), 6)
         
         if (current_curve == curves.index(curve)):
-            pygame.draw.circle(screen, PURPLE, (int(curve.x1), int(curve.y1)), 8)
-            pygame.draw.circle(screen,  PURPLE, (int(curve.x2), int(curve.y2)), 8)
-            pygame.draw.circle(screen,  LIGHT_PURPLE, (int(curve.x1), int(curve.y1)), 6)
-            pygame.draw.circle(screen, LIGHT_PURPLE, (int(curve.x2), int(curve.y2)), 6)
+            pygame.draw.circle(screen, RED, (int(curve.x1), int(curve.y1)), 8)
+            pygame.draw.circle(screen,  GREEN, (int(curve.x2), int(curve.y2)), 8)
         #Draw the curve
-        for i in range(100):
-            t = i / 100
+        lines = 50
+        for i in range(lines):
+            t = i / lines
             x0, y0 = curve.calculate_curve(t)
-            t = (i + 1) / 100
+            t = (i + 1) / lines
             x1, y1 = curve.calculate_curve(t)
             if (current_curve == curves.index(curve)):
-                pygame.draw.line(screen, GREEN, (int(x0), int(y0)), (int(x1), int(y1)), 6)
+                if x0 < 1080 // scale and y0 < 1080 // scale and x1 < 1080 // scale and y1 < 1080 // scale:
+                    pygame.draw.line(screen, WHITE, (int(x0), int(y0)), (int(x1), int(y1)), 4)
             else:
-                pygame.draw.line(screen, RED, (int(x0), int(y0)), (int(x1), int(y1)), 6)
+                if x0 < 1080 // scale and y0 < 1080 // scale and x1 < 1080 // scale and y1 < 1080 // scale:
+                    pygame.draw.line(screen, RED, (int(x0), int(y0)), (int(x1), int(y1)), 4)
     
     #Drawing text that shows the mouse position live like this (x,y)
-    font = pygame.font.Font(None, 36)
+    font = pygame.font.Font(None, 36 // (scale))
     text = font.render(f"({current_mouseX},{current_mouseY})", True, (255, 255, 255))
-    screen.blit(text, (1100,1080-36))
+    screen.blit(text, (1100 // scale,(1080-36) // scale))
     #On the right side of the screen, draw 2 sliders for the x1 and y1 values, and the x2 and y2 values
     x1_slider.draw(screen)
     y1_slider.draw(screen)
@@ -132,57 +140,62 @@ while running:
             running = False
         if event.type == pygame.MOUSEBUTTONDOWN:
             mouse_x, mouse_y = pygame.mouse.get_pos()
-            for curve in curves:
-                if (mouse_x - curve.x1)**2 + (mouse_y - curve.y1)**2 < 36:
-                    selected_point = "x1"
-                    selected_curve = curve
-                elif (mouse_x - curve.x2)**2 + (mouse_y - curve.y2)**2 < 36:
-                    selected_point = "x2"
-                    selected_curve = curve
-                elif (mouse_x - curve.x3)**2 + (mouse_y - curve.y3)**2 < 36:
-                    selected_point = "x3"
-                    selected_curve = curve
-                    
-            if linear_button.hovered:
-                curves[current_curve].linearize()
-                x1_slider.value = curves[current_curve].x1
-                y1_slider.value = curves[current_curve].y1
-                x2_slider.value = curves[current_curve].x2
-                y2_slider.value = curves[current_curve].y2
-            elif clear_button.hovered:
-                curves = []
-                current_curve = 0
-                x1_slider.value = 0
-                y1_slider.value = 0
-                x2_slider.value = 0
-                y2_slider.value = 0
-                status = STATES["START"]
-            elif selected_point != None:
-                pass
-            else:
-                if state == STATES["START"]:
-                    #If thed mouse position is in the image
-                    x0, y0 = pygame.mouse.get_pos()
-                    if x0 < 1080 and y0 < 1080:
-                        startX = x0
-                        startY = y0
-                        state = STATES["END"]
+            if event.button == 1:
+                for curve in curves:
+                    if (mouse_x - curve.x1)**2 + (mouse_y - curve.y1)**2 < 36:
+                        selected_point = "x1"
+                        selected_curve = curve
+                    elif (mouse_x - curve.x2)**2 + (mouse_y - curve.y2)**2 < 36:
+                        selected_point = "x2"
+                        selected_curve = curve
+                    elif (mouse_x - curve.x3)**2 + (mouse_y - curve.y3)**2 < 36:
+                        selected_point = "x3"
+                        selected_curve = curve
                         
-                elif state == STATES["END"]:
-                    x3, y3 = pygame.mouse.get_pos()
-                    if x3 < 1080 and y3 < 1080:
-                        if endX and endY != 0:
-                            startX = endX
-                            startY = endY
-                        endX = x3
-                        endY = y3
-                        
-                        x1_slider.value = startX
-                        y1_slider.value = startY
-                        x2_slider.value = endX
-                        y2_slider.value = endY
-                        curves.append(BezierCurve(startX, startY, startX, startY, endX, endY, endX, endY))
-                        current_curve = len(curves) - 1
+                if linear_button.hovered:
+                    curves[current_curve].linearize()
+                    x1_slider.value = curves[current_curve].x1
+                    y1_slider.value = curves[current_curve].y1
+                    x2_slider.value = curves[current_curve].x2
+                    y2_slider.value = curves[current_curve].y2
+                elif clear_button.hovered:
+                    curves = []
+                    current_curve = 0
+                    x1_slider.value = 0
+                    y1_slider.value = 0
+                    x2_slider.value = 0
+                    y2_slider.value = 0
+                    startX = 0
+                    startY = 0 
+                    endX = 0
+                    endY = 0
+                    status = STATES["START"]
+                elif selected_point != None:
+                    pass
+                else:
+                    if state == STATES["START"]:
+                        #If thed mouse position is in the image
+                        x0, y0 = pygame.mouse.get_pos()
+                        if x0 < 1080 // scale and y0 < 1080 // scale:
+                            startX = x0
+                            startY = y0
+                            state = STATES["END"]
+                            
+                    elif state == STATES["END"]:
+                        x3, y3 = pygame.mouse.get_pos()
+                        if x3 < 1080 // scale and y3 < 1080 // scale:
+                            if endX and endY != 0:
+                                startX = endX
+                                startY = endY
+                            endX = x3
+                            endY = y3
+                            
+                            x1_slider.value = startX
+                            y1_slider.value = startY
+                            x2_slider.value = endX
+                            y2_slider.value = endY
+                            curves.append(BezierCurve(startX, startY, startX, startY, endX, endY, endX, endY))
+                            current_curve = len(curves) - 1
         if event.type == pygame.KEYDOWN:
             if event.key == pygame.K_LEFT:
                 change_curve(current_curve, current_curve - 1)
