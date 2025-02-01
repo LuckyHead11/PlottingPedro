@@ -1,4 +1,5 @@
 from re import X
+from sqlite3 import connect
 import pygame
 import sys
 from BezierCurve import BezierCurve
@@ -10,7 +11,7 @@ with open('config.txt', 'r') as file:
     config = json.load(file)
     scale = config.get('scale')
     field_img = config.get("fieldImg")
-divider = (1080 // scale) // 144
+divider = (1080 / scale) / 144
 curves = []
 current_curve = 0
 
@@ -67,17 +68,7 @@ def draw():
     screen.fill((0, 0, 0)) # Clear the screen
     #Draw the field
     screen.blit(field_image, (0, 0))
-
-    if state == STATES["END"]:
-        pygame.draw.circle(screen, GREEN, (int(startX), int(startY)), 6)
     for curve in curves:
-        #Draw a small circle at the start and end points
-        pygame.draw.circle(screen, RED, (int(curve.x0), int(curve.y0)), 6)
-        pygame.draw.circle(screen, GREEN, (int(curve.x3), int(curve.y3)), 6)
-        
-        if (current_curve == curves.index(curve)):
-            pygame.draw.circle(screen, RED, (int(curve.x1), int(curve.y1)), 8)
-            pygame.draw.circle(screen,  GREEN, (int(curve.x2), int(curve.y2)), 8)
         #Draw the curve
         lines = 50
         for i in range(lines):
@@ -91,7 +82,17 @@ def draw():
             else:
                 if x0 < 1080 // scale and y0 < 1080 // scale and x1 < 1080 // scale and y1 < 1080 // scale:
                     pygame.draw.line(screen, RED, (int(x0), int(y0)), (int(x1), int(y1)), 4)
-    
+                    
+        #Draw a small circle at the start and end points
+        pygame.draw.circle(screen, RED, (int(curve.x0), int(curve.y0)), 6)
+        pygame.draw.circle(screen, GREEN, (int(curve.x3), int(curve.y3)), 6)
+        
+        if (current_curve == curves.index(curve)):
+            pygame.draw.circle(screen, RED, (int(curve.x1), int(curve.y1)), 8)
+            pygame.draw.circle(screen,  GREEN, (int(curve.x2), int(curve.y2)), 8)
+        
+    if state == STATES["END"]:
+        pygame.draw.circle(screen, GREEN, (int(startX), int(startY)), 6)
     #Drawing text that shows the mouse position live like this (x,y)
     font = pygame.font.Font(None, 36 // (scale))
     text = font.render(f"({current_mouseX},{current_mouseY})", True, (255, 255, 255))
@@ -142,7 +143,10 @@ while running:
             mouse_x, mouse_y = pygame.mouse.get_pos()
             if event.button == 1:
                 for curve in curves:
-                    if (mouse_x - curve.x1)**2 + (mouse_y - curve.y1)**2 < 36:
+                    if (mouse_x - curve.x0)**2 + (mouse_y - curve.y0)**2 < 36:
+                        selected_point = "x0"
+                        selected_curve = curve
+                    elif (mouse_x - curve.x1)**2 + (mouse_y - curve.y1)**2 < 36:
                         selected_point = "x1"
                         selected_curve = curve
                     elif (mouse_x - curve.x2)**2 + (mouse_y - curve.y2)**2 < 36:
@@ -166,10 +170,12 @@ while running:
                     x2_slider.value = 0
                     y2_slider.value = 0
                     startX = 0
-                    startY = 0 
+                    startY = 0
                     endX = 0
                     endY = 0
-                    status = STATES["START"]
+                    selected_curve = None
+                    selected_point = None
+                    state = STATES["START"]
                 elif selected_point != None:
                     pass
                 else:
@@ -190,12 +196,17 @@ while running:
                             endX = x3
                             endY = y3
                             
-                            x1_slider.value = startX
-                            y1_slider.value = startY
-                            x2_slider.value = endX
-                            y2_slider.value = endY
-                            curves.append(BezierCurve(startX, startY, startX, startY, endX, endY, endX, endY))
+                            if (len(curves) == 0):
+                                curves.append(BezierCurve(startX, startY, startX, endY, endX, startY, endX, endY, None))
+                            else:
+                                print("Connecting curves")
+                                last_curve = curves[-1]
+                                curves.append(BezierCurve(curves[-1].x3, curves[-1].y3, startX, startY, endX, endY, endX, endY, last_curve))
                             current_curve = len(curves) - 1
+                            x1_slider.value = curves[current_curve].x1
+                            y1_slider.value = curves[current_curve].y1
+                            x2_slider.value = curves[current_curve].x2
+                            y2_slider.value = curves[current_curve].y2
         if event.type == pygame.KEYDOWN:
             if event.key == pygame.K_LEFT:
                 change_curve(current_curve, current_curve - 1)
@@ -211,8 +222,17 @@ while running:
                 current_mouseX = new_x
                 current_mouseY = new_y
             
+            if selected_point == "x0":
+
                 
-            if selected_point == "x1":
+                #Check if another startpoint of a curve is interessting the endpoint, if so then set the startpoint to the endpoint
+                if selected_curve.connectingCurve != None:
+                    selected_curve.x0 = x
+                    selected_curve.y0 = y
+                    
+                    selected_curve.connectingCurve.x3 = x
+                    selected_curve.connectingCurve.y3 = y
+            elif selected_point == "x1":
                 selected_curve.x1 = x
                 selected_curve.y1 = y
                 
@@ -224,12 +244,18 @@ while running:
                 
                 x2_slider.value = x
                 y2_slider.value = y
+                
+                print(f"Currnet curve: {current_curve} IndeX: {curves.index(selected_curve)}")
             elif selected_point == "x3":
                 selected_curve.x3 = x
                 selected_curve.y3 = y
                 
                 endX = x
                 endY = y
+                
+                    
+                
+                
             
         x1_slider.handle_event(event)
         y1_slider.handle_event(event)
@@ -237,6 +263,7 @@ while running:
         y2_slider.handle_event(event)
         linear_button.handle_event(event)
         clear_button.handle_event(event)
+        
     # Fill the screen with a color (optional)
     draw()
     logic()

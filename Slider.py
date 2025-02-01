@@ -13,6 +13,9 @@ class Slider:
         self.dragging = False
         self.scale = scale
 
+        self.divider = (1080 / scale) / 144
+    def field_to_inches(self, a):
+        return round(a / self.divider, 1)
     def draw(self, screen):
         # Draw a rectangle for the slider track
         pygame.draw.rect(screen, (255, 255, 255), (self.x, self.y, self.width, self.height))
@@ -21,7 +24,7 @@ class Slider:
         pygame.draw.rect(screen, (255, 0, 0), (int(handle_x) - 8, self.y, 16, self.height))
         # Draw the name of the slider and its value
         font = pygame.font.Font(None, 36 // (self.scale))
-        changed_value = self.value
+        changed_value = self.field_to_inches(self.value)
         text = font.render(f"{self.name}: {changed_value:.2f}", True, (255, 255, 255))
         screen.blit(text, (self.x, self.y - 40 // self.scale))
 
