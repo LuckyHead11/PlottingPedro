@@ -2,6 +2,6 @@ venv/
 build/
 dist/
 *.egg-info/
-__pycache__
 *.spec
 build_command.sh
+__pycache__

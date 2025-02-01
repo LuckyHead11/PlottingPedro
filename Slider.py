@@ -19,7 +19,7 @@ class Slider:
     def draw(self, screen):
         # Draw a rectangle for the slider track
         pygame.draw.rect(screen, (255, 255, 255), (self.x, self.y, self.width, self.height))
-        # Draw a circle for the slider handles
+        # Draw a rect for the slider handles
         handle_x = self.x + (self.value - self.min_val) / (self.max_val - self.min_val) * self.width
         pygame.draw.rect(screen, (255, 0, 0), (int(handle_x) - 8, self.y, 16, self.height))
         # Draw the name of the slider and its value

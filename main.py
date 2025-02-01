@@ -48,13 +48,16 @@ YELLOW = (255, 255, 0)
 DARK_YELLOW = (200, 200, 0)
 LIGHT_GRAY = (200, 200, 200)
 
-padding = 100 // scale
-x1_slider = Slider(1100 // scale, 100 // scale, 100, 20 // scale, 0, 1080 // scale, 0, "x1", scale=scale)
-y1_slider = Slider(1100 // scale, 100 // scale + padding, 100 // scale, 20 // scale, 0, 1080 // scale, 0, "y1", scale=scale)
-x2_slider = Slider(1100 // scale, 100 // scale + (padding * 2), 100 // scale, 20 // scale, 0, 1080 // scale, 0, "x2", scale=scale)
-y2_slider = Slider(1100 // scale, 100 // scale + (padding * 3), 100 // scale, 20 // scale, 0, 1080 // scale, 0, "y2", scale=scale)
-linear_button = Button(1100 // scale, 100 // scale + (padding * 4), 150 // scale, 45 // scale, "Linearize", 36 // scale,BLACK, WHITE, LIGHT_GRAY)
-clear_button = Button(1100 // scale, 100 // scale + (padding * 4.5), 100 // scale, 45 // scale, "Clear", 36 // scale,BLACK, WHITE, LIGHT_GRAY)
+#Transparent purple
+TRANSPARENT_WHITE = (255, 255, 255, 128)
+
+x1_slider = Slider(1100 // scale, 100 // scale, 300 // scale, 20 // scale, 0, 1080 // scale, 0, "x1", scale=scale)
+y1_slider = Slider(1100 // scale, 200 // scale, 300 // scale, 20 // scale, 0, 1080 // scale, 0, "y1", scale=scale)
+x2_slider = Slider(1100 // scale, 300 // scale, 300 // scale, 20 // scale, 0, 1080 // scale, 0, "x2", scale=scale)
+y2_slider = Slider(1100 // scale, 400 // scale, 300 // scale, 20 // scale, 0, 1080 // scale, 0, "y2", scale=scale)
+linear_button = Button(1100 // scale, 450 // scale, 300 // scale, 45 // scale, "Linearize (Bezier Line)", 36 // scale, BLACK, WHITE, LIGHT_GRAY)
+clear_button = Button(1100 // scale, 500 // scale, 140 // scale, 45 // scale, "Clear", 36 // scale, BLACK, WHITE, LIGHT_GRAY)
+delete_button = Button(1250 // scale, 500 // scale, 150 // scale, 45 // scale, "Delete", 36 // scale, BLACK, WHITE, LIGHT_GRAY)
 state = STATES["START"]
 
 startX = 0
@@ -85,6 +88,13 @@ def draw():
     screen.fill((0, 0, 0)) # Clear the screen
     #Draw the field
     screen.blit(field_image, (0, 0))
+    #Draw a line from the endX and endY to the current mouse position
+    if state == STATES["END"] and endX != 0 and endY != 0 and selected_point == None:
+        #Make it transparent
+        
+        transparent_surface = pygame.Surface((width, height), pygame.SRCALPHA)
+        pygame.draw.line(transparent_surface, TRANSPARENT_WHITE, (endX, endY), (current_mouseX * divider, current_mouseY * divider), 4)
+        screen.blit(transparent_surface, (0, 0))
     for curve in curves:
         #Draw the curve
         lines = 50
@@ -98,11 +108,11 @@ def draw():
                     pygame.draw.line(screen, WHITE, (int(x0), int(y0)), (int(x1), int(y1)), 4)
             else:
                 if x0 < 1080 // scale and y0 < 1080 // scale and x1 < 1080 // scale and y1 < 1080 // scale:
-                    pygame.draw.line(screen, RED, (int(x0), int(y0)), (int(x1), int(y1)), 4)
+                    pygame.draw.line(screen, LIGHT_GRAY, (int(x0), int(y0)), (int(x1), int(y1)), 4)
                     
-        #Draw a small circle at the start and end points
-        pygame.draw.circle(screen, RED, (int(curve.x0), int(curve.y0)), 6) # Start point
-        pygame.draw.circle(screen, GREEN, (int(curve.x3), int(curve.y3)), 6) # End Point
+        
+        pygame.draw.circle(screen, GREEN, (int(curve.x0), int(curve.y0)), 6) # Start point
+        pygame.draw.circle(screen, RED, (int(curve.x3), int(curve.y3)), 6) # End Point
         
         if (current_curve == curves.index(curve)):
             if selected_point == "x1":
@@ -133,6 +143,7 @@ def draw():
     y2_slider.draw(screen)
     linear_button.draw(screen)
     clear_button.draw(screen)
+    delete_button.draw(screen)
 
 def logic():
     if len(curves) != 0:
@@ -147,7 +158,49 @@ def logic():
         current_beziercurve.y1 = y1_value
         current_beziercurve.x2 = x2_value
         current_beziercurve.y2 = y2_value
-
+    if len(curves) >= 2:
+        for curve in curves:
+            if curve.connectingCurve not in curves and curves.index(curve) != 0:
+                delete_certain_curve(curves.index(curve))
+            
+def clear():
+    global curves, current_curve, startX, startY, endX, endY, selected_curve, selected_point, state
+    curves = []
+    current_curve = 0
+    x1_slider.value = 0
+    y1_slider.value = 0
+    x2_slider.value = 0
+    y2_slider.value = 0
+    startX = 0
+    startY = 0
+    endX = 0
+    endY = 0
+    selected_curve = None
+    selected_point = None
+    state = STATES["START"]
+def delete():
+    global curves, current_curve, selected_curve
+    if current_curve != 0:
+        for curve in curves:
+            if curve.connectingCurve == curves[current_curve]:
+                delete_certain_curve(curves.index(curve))
+        curves.remove(curves[current_curve])
+        current_curve -= 1
+        selected_curve = curves[current_curve]
+        x1_slider.value = curves[current_curve].x1
+        y1_slider.value = curves[current_curve].y1
+        x2_slider.value = curves[current_curve].x2
+        y2_slider.value = curves[current_curve].y2
+    else:
+        clear()
+def delete_certain_curve(curve):
+    
+    if curve != None:
+        curves.pop(curve)
+        x1_slider.value = curves[-1].x1
+        y1_slider.value = curves[-1].y1
+        x2_slider.value = curves[-1].x2
+        y2_slider.value = curves[-1].y2
 def change_curve(current_curve_id, new_curve_id):
     global current_curve
     if new_curve_id < 0:
@@ -192,19 +245,9 @@ while running:
                     x2_slider.value = curves[current_curve].x2
                     y2_slider.value = curves[current_curve].y2
                 elif clear_button.hovered:
-                    curves = []
-                    current_curve = 0
-                    x1_slider.value = 0
-                    y1_slider.value = 0
-                    x2_slider.value = 0
-                    y2_slider.value = 0
-                    startX = 0
-                    startY = 0
-                    endX = 0
-                    endY = 0
-                    selected_curve = None
-                    selected_point = None
-                    state = STATES["START"]
+                    clear()
+                elif delete_button.hovered:
+                    delete()
                 elif selected_point != None:
                     pass
                 else:
@@ -226,10 +269,10 @@ while running:
                             endY = y3
                             
                             if (len(curves) == 0):
-                                curves.append(BezierCurve(startX, startY, startX, startY+15, endX, endY+15,endX, endY, None))
+                                curves.append(BezierCurve(startX, startY, startX+15, startY, endX+15, endY,endX, endY, None))
                             else:
                                 last_curve = curves[-1]
-                                curves.append(BezierCurve(curves[-1].x3, curves[-1].y3, startX,startY+15, endX, endY+15,endX, endY, last_curve))
+                                curves.append(BezierCurve(curves[-1].x3, curves[-1].y3, startX-15,startY, endX-15, endY,endX, endY, last_curve))
                             current_curve = len(curves) - 1
                             x1_slider.value = curves[current_curve].x1
                             y1_slider.value = curves[current_curve].y1
@@ -240,6 +283,9 @@ while running:
                 change_curve(current_curve, current_curve - 1)
             if event.key == pygame.K_RIGHT:
                 change_curve(current_curve, current_curve + 1)
+            if event.key == pygame.K_DELETE:
+                delete()
+                    
         if event.type == pygame.MOUSEBUTTONUP:
             selected_point = None
             selected_curve = None
@@ -290,6 +336,7 @@ while running:
         y2_slider.handle_event(event)
         linear_button.handle_event(event)
         clear_button.handle_event(event)
+        delete_button.handle_event(event)
         
     # Fill the screen with a color (optional)
     draw()

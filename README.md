@@ -1,12 +1,12 @@
 # Plotting Pedro
 
 ## Overview
-Plotting Pedro is a plotting software designed by FTC Team **#14840: DCS Mechwarriors** that allows you to develop Beziur Lines, and Curves, lastly outputting that into code which then you can use in Pedro Pathing developed by Team **#10158: Scott's Bots**.
+Plotting Pedro is a plotting software designed by FTC Team **#14840: DCS Mechwarriors** that allows you to develop Bezier Lines, and Curves, lastly outputting that into code which then you can use in Pedro Pathing developed by Team **#10158: Scott's Bots**.
 
 ## Features
 - **Bezier Curve Manipulation**: Allows you to control start and end points, along with 2 control points
 - **Configurable Settings**: Load and save configuration settings from a config.txt file
-- **Support**: 
+- **Support**: Able to export your paths to Pedro Pathing
 
 ## Installation
 1. Ensure you have Python installed on your system.
@@ -27,6 +27,7 @@ Plotting Pedro is a plotting software designed by FTC Team **#14840: DCS Mechwar
 We use a **config.txt** file to store configuration settings. If the file does not exist, it will be generated with default values:
 ```json
 {
-    "scale": 1,
-    "fieldImg": "field.png"
+    "scale": 1, // Higher is smaller, making the whole program smaller to make sure it fits on every screen
+    "fieldImg": "field.png" // Location of the field image used to plot
 }
+```
