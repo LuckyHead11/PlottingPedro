@@ -1,16 +1,12 @@
 # Plotting Pedro
 
 ## Overview
-Plotting Pedro is a plotting software designed by FTC Team #14840 that allows you to drag points on a field and output that into code which then you can use in Pedro Pathing
+Plotting Pedro is a plotting software designed by FTC Team **#14840: DCS Mechwarriors** that allows you to develop Beziur Lines, and Curves, lastly outputting that into code which then you can use in Pedro Pathing developed by Team **#10158: Scott's Bots**.
 
 ## Features
-- **Bezier Curve Drawing**: Draw Bezier curves by clicking on the start and end points.
-- **Curve Manipulation**: Adjust control points of the Bezier curves using sliders.
-- **Curve Selection**: Select and focus on different curves using mouse clicks or keyboard arrows.
-- **Linearization**: Linearize the selected curve with a button click.
-- **Clear Curves**: Clear all curves with a button click.
-- **Mouse Position Display**: Display the current mouse position in inches on the screen.
-- **Configurable Settings**: Load and save configuration settings from a `config.txt` file.
+- **Bezier Curve Manipulation**: Allows you to control start and end points, along with 2 control points
+- **Configurable Settings**: Load and save configuration settings from a config.txt file
+- **Support**: 
 
 ## Installation
 1. Ensure you have Python installed on your system.
@@ -18,16 +14,17 @@ Plotting Pedro is a plotting software designed by FTC Team #14840 that allows yo
     ```bash
     pip install -r requirements.txt
     ```
+3. Ensure you have a **1080x1080** field image in your directory, if you need to edit the location of that image if you can do so in the auto-generated config file at startup.
 
 ## Usage
 1. Run the [main.py]() script:
     ```bash
     python main.py
     ```
-2. The application window will open, displaying a field image.
+2. You can now click twice anywhere in the field location and it will generate a curve, you can drag on the 2 control points to modify them, or use the sliders on the right side. Press **"Linearize"** to make the line straight.
 
 ## Configuration
-The application uses a [config.txt](http://_vscodecontentref_/1) file to store configuration settings. If the file does not exist, it will be generated with default values:
+We use a **config.txt** file to store configuration settings. If the file does not exist, it will be generated with default values:
 ```json
 {
     "scale": 1,
