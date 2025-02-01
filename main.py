@@ -1,11 +1,27 @@
+import os
+import json
 from re import X
 from sqlite3 import connect
 import pygame
 import sys
+def generate_config():
+    config = {
+        "scale": 1,
+        "fieldImg": "field.png"
+    }
+    with open('config.txt', 'w') as file:
+        json.dump(config, file)
+
+# If there is no config file generate one
+if not os.path.exists('config.txt'):
+    generate_config()
+
+#Making sure there is a config file before importing the classes
 from BezierCurve import BezierCurve
 from Slider import Slider
 from Button import Button
-import json
+
+
 
 with open('config.txt', 'r') as file:
     config = json.load(file)
@@ -234,7 +250,7 @@ while running:
                 current_mouseX = new_x
                 current_mouseY = new_y
             
-            if selected_point == "x0":
+            if selected_point == "x0" and selected_curve != None:
 
                 
                 #Check if another startpoint of a curve is interessting the endpoint, if so then set the startpoint to the endpoint
@@ -244,20 +260,20 @@ while running:
                     
                     selected_curve.connectingCurve.x3 = x
                     selected_curve.connectingCurve.y3 = y
-            elif selected_point == "x1":
+            elif selected_point == "x1" and selected_curve != None:
                 selected_curve.x1 = x
                 selected_curve.y1 = y
                 
                 x1_slider.value = x
                 y1_slider.value = y
-            elif selected_point == "x2":
+            elif selected_point == "x2" and selected_curve != None:
                 selected_curve.x2 = x
                 selected_curve.y2 = y
                 
                 x2_slider.value = x
                 y2_slider.value = y
                 
-            elif selected_point == "x3":
+            elif selected_point == "x3" and selected_curve != None:
                 selected_curve.x3 = x
                 selected_curve.y3 = y
                 

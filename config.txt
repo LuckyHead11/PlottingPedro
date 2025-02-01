@@ -1,4 +1,4 @@
 {
     "scale": 1,
-    "fieldImg": "fields/dark.png"
+    "fieldImg": "fields/field.png"
 }
