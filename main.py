@@ -85,19 +85,31 @@ def draw():
                     pygame.draw.line(screen, RED, (int(x0), int(y0)), (int(x1), int(y1)), 4)
                     
         #Draw a small circle at the start and end points
-        pygame.draw.circle(screen, RED, (int(curve.x0), int(curve.y0)), 6)
-        pygame.draw.circle(screen, GREEN, (int(curve.x3), int(curve.y3)), 6)
+        pygame.draw.circle(screen, RED, (int(curve.x0), int(curve.y0)), 6) # Start point
+        pygame.draw.circle(screen, GREEN, (int(curve.x3), int(curve.y3)), 6) # End Point
         
         if (current_curve == curves.index(curve)):
-            pygame.draw.circle(screen, RED, (int(curve.x1), int(curve.y1)), 8)
-            pygame.draw.circle(screen,  GREEN, (int(curve.x2), int(curve.y2)), 8)
+            if selected_point == "x1":
+                pygame.draw.circle(screen, GREEN, (int(curve.x1), int(curve.y1)), 12) # Control point 1 focused
+            else:
+                pygame.draw.circle(screen, GREEN, (int(curve.x1), int(curve.y1)), 8) # Control point 1 unfocused
+            if selected_point == "x2":
+                pygame.draw.circle(screen, RED, (int(curve.x2), int(curve.y2)), 12) # Control point 2 focused
+            else:
+                pygame.draw.circle(screen, RED, (int(curve.x2), int(curve.y2)), 8) # Control point 2 unfocused
         
-    if state == STATES["END"]:
+    if state == STATES["END"] and len(curves) == 0:
         pygame.draw.circle(screen, GREEN, (int(startX), int(startY)), 6)
     #Drawing text that shows the mouse position live like this (x,y)
+    
     font = pygame.font.Font(None, 36 // (scale))
+    font_small = pygame.font.Font(None, 26 // (scale))
     text = font.render(f"({current_mouseX},{current_mouseY})", True, (255, 255, 255))
     screen.blit(text, (1100 // scale,(1080-36) // scale))
+    
+    text = font_small.render("Created by Team #14840 DCS MechWarriors", True, (255, 255, 255))
+    screen.blit(text, ((1600 // scale) - (1080 // scale) - (text.get_width() // 2), 5))
+    
     #On the right side of the screen, draw 2 sliders for the x1 and y1 values, and the x2 and y2 values
     x1_slider.draw(screen)
     y1_slider.draw(screen)
@@ -198,11 +210,10 @@ while running:
                             endY = y3
                             
                             if (len(curves) == 0):
-                                curves.append(BezierCurve(startX, startY, startX, endY, endX, startY, endX, endY, None))
+                                curves.append(BezierCurve(startX, startY, startX, startY+15, endX, endY+15,endX, endY, None))
                             else:
-                                print("Connecting curves")
                                 last_curve = curves[-1]
-                                curves.append(BezierCurve(curves[-1].x3, curves[-1].y3, startX, startY, endX, endY, endX, endY, last_curve))
+                                curves.append(BezierCurve(curves[-1].x3, curves[-1].y3, startX,startY+15, endX, endY+15,endX, endY, last_curve))
                             current_curve = len(curves) - 1
                             x1_slider.value = curves[current_curve].x1
                             y1_slider.value = curves[current_curve].y1
@@ -246,7 +257,6 @@ while running:
                 x2_slider.value = x
                 y2_slider.value = y
                 
-                print(f"Currnet curve: {current_curve} IndeX: {curves.index(selected_curve)}")
             elif selected_point == "x3":
                 selected_curve.x3 = x
                 selected_curve.y3 = y
