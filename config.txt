@@ -1,4 +1,5 @@
 {
     "scale": 1,
-    "fieldImg": "field.png" 
+    "fieldImg": "field.png",
+    "linesPerCurve": 50
 }

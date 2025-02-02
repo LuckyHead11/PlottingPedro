@@ -28,6 +28,7 @@ We use a **config.txt** file to store configuration settings. If the file does n
 ```json
 {
     "scale": 1, // Higher is smaller, making the whole program smaller to make sure it fits on every screen
-    "fieldImg": "field.png" // Location of the field image used to plot
+    "fieldImg": "field.png", // Location of the field image used to plot
+    "linesPerCurve": 50 // How detailed a curve is, higher costs more performance
 }
 ```

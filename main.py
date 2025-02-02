@@ -22,13 +22,16 @@ from Slider import Slider
 from Button import Button
 import tkinter as tk
 from tkinter import scrolledtext
-
+from PIL import Image
 
 
 with open('config.txt', 'r') as file:
     config = json.load(file)
     scale = config.get('scale')
     field_img = config.get("fieldImg")
+    lines_per_curve = config.get("linesPerCurve")
+
+
 divider = (1080 / scale) / 144
 curves = []
 current_curve = 0
@@ -48,9 +51,10 @@ WHITE = (255, 255, 255)
 BLACK = (0, 0, 0)
 YELLOW = (255, 255, 0)
 DARK_YELLOW = (200, 200, 0)
-LIGHT_GRAY = (200, 200, 200)
+LIGHT_GRAY = (150, 150, 150)
+DARK_GRAY = (30, 30, 30)
 
-#Transparent purple
+#Transparent purpl
 TRANSPARENT_WHITE = (255, 255, 255, 128)
 
 x1_slider = Slider(1100 // scale, 100 // scale, 300 // scale, 20 // scale, 0, 1080 // scale, 0, "x1", scale=scale)
@@ -88,12 +92,12 @@ def field_to_inches(x, y):
     return round(x / divider, 1), round(y / divider, 1)
 
 def draw():
-    screen.fill((0, 0, 0)) # Clear the screen
+    screen.fill(DARK_GRAY) # Clear the screen
     #Draw the field
     screen.blit(field_image, (0, 0))
     for curve in curves:
-        #Draw the curve
-        lines = 50
+        # Draw the curve
+        lines = lines_per_curve  # Increase the number of lines for smoother curves
         for i in range(lines):
             t = i / lines
             x0, y0 = curve.calculate_curve(t)
@@ -101,10 +105,10 @@ def draw():
             x1, y1 = curve.calculate_curve(t)
             if (current_curve == curves.index(curve)):
                 if x0 < 1080 // scale and y0 < 1080 // scale and x1 < 1080 // scale and y1 < 1080 // scale:
-                    pygame.draw.line(screen, WHITE, (int(x0), int(y0)), (int(x1), int(y1)), 4)
+                    pygame.draw.line(screen, WHITE, (int(x0), int(y0)), (int(x1), int(y1)), 1)
             else:
                 if x0 < 1080 // scale and y0 < 1080 // scale and x1 < 1080 // scale and y1 < 1080 // scale:
-                    pygame.draw.line(screen, LIGHT_GRAY, (int(x0), int(y0)), (int(x1), int(y1)), 4)
+                    pygame.draw.line(screen, LIGHT_GRAY, (int(x0), int(y0)), (int(x1), int(y1)), 1) 
                     
         
         pygame.draw.circle(screen, GREEN, (int(curve.x0), int(curve.y0)), 6) # Start point
@@ -251,16 +255,13 @@ while running:
                     for curve in curves:
                         path += f"\n    {curve.to_pathchain(divider)}"
                     path += "\n.build();"
-                    def show_popup(path):
-                        popup = tk.Tk()
-                        popup.title("Exported Pathchain")
-                        text_area = scrolledtext.ScrolledText(popup, wrap=tk.WORD, width=60, height=20)
-                        text_area.pack(padx=10, pady=10)
-                        text_area.insert(tk.END, path)
-                        text_area.config(state=tk.DISABLED)
-                        popup.mainloop()
-
-                    show_popup(path)
+                    root = tk.Tk()
+                    root.title("Exported Pathchain")
+                    text_area = scrolledtext.ScrolledText(root, wrap=tk.WORD, width=60, height=20)
+                    text_area.pack(padx=10, pady=10)
+                    text_area.insert(tk.INSERT, path)
+                    text_area.config(state=tk.DISABLED)
+                    root.mainloop()
                 elif selected_point != None:
                     pass
                 else:
@@ -309,35 +310,36 @@ while running:
                 current_mouseX = new_x
                 current_mouseY = new_y
             
-            if selected_point == "x0" and selected_curve != None:
+            if x < 1080 and y < 1080 and x >= 0 and y >= 0:
+                if selected_point == "x0" and selected_curve != None:
 
-                
-                #Check if another startpoint of a curve is interessting the endpoint, if so then set the startpoint to the endpoint
-                if selected_curve.connectingCurve != None:
-                    selected_curve.x0 = x
-                    selected_curve.y0 = y
                     
-                    selected_curve.connectingCurve.x3 = x
-                    selected_curve.connectingCurve.y3 = y
-            elif selected_point == "x1" and selected_curve != None:
-                selected_curve.x1 = x
-                selected_curve.y1 = y
-                
-                x1_slider.value = x
-                y1_slider.value = y
-            elif selected_point == "x2" and selected_curve != None:
-                selected_curve.x2 = x
-                selected_curve.y2 = y
-                
-                x2_slider.value = x
-                y2_slider.value = y
-                
-            elif selected_point == "x3" and selected_curve != None:
-                selected_curve.x3 = x
-                selected_curve.y3 = y
-                
-                endX = x
-                endY = y
+                    #If we move the bottom curve, also update the end curve that it is connected to
+                    if selected_curve.connectingCurve != None:
+                        selected_curve.x0 = x
+                        selected_curve.y0 = y
+                        
+                        selected_curve.connectingCurve.x3 = x
+                        selected_curve.connectingCurve.y3 = y
+                elif selected_point == "x1" and selected_curve != None:
+                    selected_curve.x1 = x
+                    selected_curve.y1 = y
+                    
+                    x1_slider.value = x
+                    y1_slider.value = y
+                elif selected_point == "x2" and selected_curve != None:
+                    selected_curve.x2 = x
+                    selected_curve.y2 = y
+                    
+                    x2_slider.value = x
+                    y2_slider.value = y
+                    
+                elif selected_point == "x3" and selected_curve != None:
+                    selected_curve.x3 = x
+                    selected_curve.y3 = y
+                    
+                    endX = x
+                    endY = y
                 
                     
                 
