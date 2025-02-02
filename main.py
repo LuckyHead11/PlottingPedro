@@ -20,6 +20,8 @@ if not os.path.exists('config.txt'):
 from BezierCurve import BezierCurve
 from Slider import Slider
 from Button import Button
+import tkinter as tk
+from tkinter import scrolledtext
 
 
 
@@ -58,6 +60,7 @@ y2_slider = Slider(1100 // scale, 400 // scale, 300 // scale, 20 // scale, 0, 10
 linear_button = Button(1100 // scale, 450 // scale, 300 // scale, 45 // scale, "Linearize (Bezier Line)", 36 // scale, BLACK, WHITE, LIGHT_GRAY)
 clear_button = Button(1100 // scale, 500 // scale, 140 // scale, 45 // scale, "Clear", 36 // scale, BLACK, WHITE, LIGHT_GRAY)
 delete_button = Button(1250 // scale, 500 // scale, 150 // scale, 45 // scale, "Delete", 36 // scale, BLACK, WHITE, LIGHT_GRAY)
+export_button = Button(1100 // scale, 550 // scale, 300 // scale, 45 // scale, "Export Pathchain", 36 // scale, BLACK, WHITE, LIGHT_GRAY)
 state = STATES["START"]
 
 startX = 0
@@ -88,13 +91,6 @@ def draw():
     screen.fill((0, 0, 0)) # Clear the screen
     #Draw the field
     screen.blit(field_image, (0, 0))
-    #Draw a line from the endX and endY to the current mouse position
-    if state == STATES["END"] and endX != 0 and endY != 0 and selected_point == None:
-        #Make it transparent
-        
-        transparent_surface = pygame.Surface((width, height), pygame.SRCALPHA)
-        pygame.draw.line(transparent_surface, TRANSPARENT_WHITE, (endX, endY), (current_mouseX * divider, current_mouseY * divider), 4)
-        screen.blit(transparent_surface, (0, 0))
     for curve in curves:
         #Draw the curve
         lines = 50
@@ -144,6 +140,7 @@ def draw():
     linear_button.draw(screen)
     clear_button.draw(screen)
     delete_button.draw(screen)
+    export_button.draw(screen)
 
 def logic():
     if len(curves) != 0:
@@ -239,15 +236,31 @@ while running:
                         selected_curve = curve
                         
                 if linear_button.hovered:
-                    curves[current_curve].linearize()
-                    x1_slider.value = curves[current_curve].x1
-                    y1_slider.value = curves[current_curve].y1
-                    x2_slider.value = curves[current_curve].x2
-                    y2_slider.value = curves[current_curve].y2
+                    if len(curves) != 0:
+                        curves[current_curve].linearize()
+                        x1_slider.value = curves[current_curve].x1
+                        y1_slider.value = curves[current_curve].y1
+                        x2_slider.value = curves[current_curve].x2
+                        y2_slider.value = curves[current_curve].y2
                 elif clear_button.hovered:
                     clear()
                 elif delete_button.hovered:
                     delete()
+                elif export_button.hovered:
+                    path = "PathChain pathChain = follower.pathBuilder()"
+                    for curve in curves:
+                        path += f"\n    {curve.to_pathchain(divider)}"
+                    path += "\n.build();"
+                    def show_popup(path):
+                        popup = tk.Tk()
+                        popup.title("Exported Pathchain")
+                        text_area = scrolledtext.ScrolledText(popup, wrap=tk.WORD, width=60, height=20)
+                        text_area.pack(padx=10, pady=10)
+                        text_area.insert(tk.END, path)
+                        text_area.config(state=tk.DISABLED)
+                        popup.mainloop()
+
+                    show_popup(path)
                 elif selected_point != None:
                     pass
                 else:
@@ -337,6 +350,7 @@ while running:
         linear_button.handle_event(event)
         clear_button.handle_event(event)
         delete_button.handle_event(event)
+        export_button.handle_event(event)
         
     # Fill the screen with a color (optional)
     draw()
