@@ -37,4 +37,4 @@ class BezierCurve:
         if self.is_line():
             return f".addPath(new BezierLine(new Point(new Pose({x0}, {y0}, 0)), new Point(new Pose({x3}, {y3}, 0)))"
         else:
-            return f".addPath(new BezierCurve(new Point(new Pose({x0}, {self.y0}, 0)), new Point(new Pose({x1}, {y1}, 0)), new Point(new Pose({x2}, {y2}, 0)), new Point(new Pose({x3}, {y3}, 0)))"
+            return f".addPath(new BezierCurve(new Point(new Pose({x0}, {y0}, 0)), new Point(new Pose({x1}, {y1}, 0)), new Point(new Pose({x2}, {y2}, 0)), new Point(new Pose({x3}, {y3}, 0)))"

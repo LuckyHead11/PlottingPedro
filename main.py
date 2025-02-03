@@ -7,7 +7,8 @@ import sys
 def generate_config():
     config = {
         "scale": 1,
-        "fieldImg": "field.png"
+        "fieldImg": "field.png",
+        "linesPerCurve": 50
     }
     with open('config.txt', 'w') as file:
         json.dump(config, file)
