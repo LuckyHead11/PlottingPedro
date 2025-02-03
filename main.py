@@ -32,8 +32,10 @@ with open('config.txt', 'r') as file:
     field_img = config.get("fieldImg")
     lines_per_curve = config.get("linesPerCurve")
 
+if scale > 3: scale = 3
 
-divider = (1080 / scale) / 144
+divider = (1080 // scale) / 144
+print(divider)
 curves = []
 current_curve = 0
 
@@ -43,6 +45,7 @@ STATES = {
     
 }
 
+# Define colors
 RED = (255, 0, 0)
 GREEN = (0, 255, 0)
 BLUE = (0, 0, 255)
@@ -54,18 +57,18 @@ YELLOW = (255, 255, 0)
 DARK_YELLOW = (200, 200, 0)
 LIGHT_GRAY = (150, 150, 150)
 DARK_GRAY = (30, 30, 30)
-
-#Transparent purpl
 TRANSPARENT_WHITE = (255, 255, 255, 128)
 
+# Initialize sliders and buttons
 x1_slider = Slider(1100 // scale, 100 // scale, 300 // scale, 20 // scale, 0, 1080 // scale, 0, "x1", scale=scale)
 y1_slider = Slider(1100 // scale, 200 // scale, 300 // scale, 20 // scale, 0, 1080 // scale, 0, "y1", scale=scale)
 x2_slider = Slider(1100 // scale, 300 // scale, 300 // scale, 20 // scale, 0, 1080 // scale, 0, "x2", scale=scale)
 y2_slider = Slider(1100 // scale, 400 // scale, 300 // scale, 20 // scale, 0, 1080 // scale, 0, "y2", scale=scale)
-linear_button = Button(1100 // scale, 450 // scale, 300 // scale, 45 // scale, "Linearize (Bezier Line)", 36 // scale, BLACK, WHITE, LIGHT_GRAY)
-clear_button = Button(1100 // scale, 500 // scale, 140 // scale, 45 // scale, "Clear", 36 // scale, BLACK, WHITE, LIGHT_GRAY)
-delete_button = Button(1250 // scale, 500 // scale, 150 // scale, 45 // scale, "Delete", 36 // scale, BLACK, WHITE, LIGHT_GRAY)
-export_button = Button(1100 // scale, 550 // scale, 300 // scale, 45 // scale, "Export Pathchain", 36 // scale, BLACK, WHITE, LIGHT_GRAY)
+
+linear_button = Button(1100 // scale, 450 // scale, 300 // scale, 45 // scale, "Linearize (Bezier Line)", 36 // scale, BLACK, WHITE, LIGHT_GRAY, border_radius=10//scale, border_width=2//scale)
+clear_button = Button(1100 // scale, 500 // scale, 140 // scale, 45 // scale, "Clear", 36 // scale, BLACK, WHITE, LIGHT_GRAY, border_radius=10//scale, border_width=2//scale)
+delete_button = Button(1250 // scale, 500 // scale, 150 // scale, 45 // scale, "Delete", 36 // scale, BLACK, WHITE, LIGHT_GRAY, border_radius=10//scale, border_width=2//scale)
+export_button = Button(1100 // scale, 550 // scale, 300 // scale, 45 // scale, "Export Pathchain", 36 // scale, BLACK, WHITE, LIGHT_GRAY, border_radius=10//scale, border_width=2//scale)
 state = STATES["START"]
 
 startX = 0
@@ -98,7 +101,7 @@ def draw():
     screen.blit(field_image, (0, 0))
     for curve in curves:
         # Draw the curve
-        lines = lines_per_curve  # Increase the number of lines for smoother curves
+        lines = lines_per_curve * scale  # Increase the number of lines for smoother curves
         for i in range(lines):
             t = i / lines
             x0, y0 = curve.calculate_curve(t)
@@ -106,24 +109,24 @@ def draw():
             x1, y1 = curve.calculate_curve(t)
             if (current_curve == curves.index(curve)):
                 if x0 < 1080 // scale and y0 < 1080 // scale and x1 < 1080 // scale and y1 < 1080 // scale:
-                    pygame.draw.line(screen, WHITE, (int(x0), int(y0)), (int(x1), int(y1)), 1)
+                    pygame.draw.line(screen, WHITE, (int(x0), int(y0)), (int(x1), int(y1)), 3 // scale)
             else:
                 if x0 < 1080 // scale and y0 < 1080 // scale and x1 < 1080 // scale and y1 < 1080 // scale:
-                    pygame.draw.line(screen, LIGHT_GRAY, (int(x0), int(y0)), (int(x1), int(y1)), 1) 
+                    pygame.draw.line(screen, LIGHT_GRAY, (int(x0), int(y0)), (int(x1), int(y1)), 3 // scale) 
                     
         
-        pygame.draw.circle(screen, GREEN, (int(curve.x0), int(curve.y0)), 6) # Start point
-        pygame.draw.circle(screen, RED, (int(curve.x3), int(curve.y3)), 6) # End Point
+        pygame.draw.circle(screen, GREEN, (int(curve.x0), int(curve.y0)), 6 // scale) # Start point
+        pygame.draw.circle(screen, RED, (int(curve.x3), int(curve.y3)), 6 // scale) # End Point
         
         if (current_curve == curves.index(curve)):
             if selected_point == "x1":
-                pygame.draw.circle(screen, GREEN, (int(curve.x1), int(curve.y1)), 12) # Control point 1 focused
+                pygame.draw.circle(screen, GREEN, (int(curve.x1), int(curve.y1)), 12 // scale) # Control point 1 focused
             else:
-                pygame.draw.circle(screen, GREEN, (int(curve.x1), int(curve.y1)), 8) # Control point 1 unfocused
+                pygame.draw.circle(screen, GREEN, (int(curve.x1), int(curve.y1)), 8 // scale) # Control point 1 unfocused
             if selected_point == "x2":
-                pygame.draw.circle(screen, RED, (int(curve.x2), int(curve.y2)), 12) # Control point 2 focused
+                pygame.draw.circle(screen, RED, (int(curve.x2), int(curve.y2)), 12 // scale) # Control point 2 focused
             else:
-                pygame.draw.circle(screen, RED, (int(curve.x2), int(curve.y2)), 8) # Control point 2 unfocused
+                pygame.draw.circle(screen, RED, (int(curve.x2), int(curve.y2)), 8 // scale) # Control point 2 unfocused
         
     if state == STATES["END"] and len(curves) == 0:
         pygame.draw.circle(screen, GREEN, (int(startX), int(startY)), 6)
@@ -148,6 +151,7 @@ def draw():
     export_button.draw(screen)
 
 def logic():
+    global startX, startY, endX, endY, state, current_curve, selected_curve, selected_point, scale, divider
     if len(curves) != 0:
         x1_value = x1_slider.value
         y1_value = y1_slider.value
@@ -306,41 +310,46 @@ while running:
             selected_curve = None
         if event.type == pygame.MOUSEMOTION:
             x,y = pygame.mouse.get_pos()
-            if x < 1080 and y < 1080:
+            if x < 1080 // scale and y < 1080 // scale:
                 new_x, new_y = field_to_inches(x, y)
                 current_mouseX = new_x
                 current_mouseY = new_y
             
-            if x < 1080 and y < 1080 and x >= 0 and y >= 0:
-                if selected_point == "x0" and selected_curve != None:
+            if x > 1080 // scale: x = 1080 // scale
+            if y > 1080 // scale: y = 1080 // scale
+            if x < 0: x = 0
+            if y < 0: y = 0
+            
+            
+            if selected_point == "x0" and selected_curve != None:
 
+                
+                #If we move the bottom curve, also update the end curve that it is connected to
+                if selected_curve.connectingCurve != None:
+                    selected_curve.x0 = x
+                    selected_curve.y0 = y
                     
-                    #If we move the bottom curve, also update the end curve that it is connected to
-                    if selected_curve.connectingCurve != None:
-                        selected_curve.x0 = x
-                        selected_curve.y0 = y
-                        
-                        selected_curve.connectingCurve.x3 = x
-                        selected_curve.connectingCurve.y3 = y
-                elif selected_point == "x1" and selected_curve != None:
-                    selected_curve.x1 = x
-                    selected_curve.y1 = y
-                    
-                    x1_slider.value = x
-                    y1_slider.value = y
-                elif selected_point == "x2" and selected_curve != None:
-                    selected_curve.x2 = x
-                    selected_curve.y2 = y
-                    
-                    x2_slider.value = x
-                    y2_slider.value = y
-                    
-                elif selected_point == "x3" and selected_curve != None:
-                    selected_curve.x3 = x
-                    selected_curve.y3 = y
-                    
-                    endX = x
-                    endY = y
+                    selected_curve.connectingCurve.x3 = x
+                    selected_curve.connectingCurve.y3 = y
+            elif selected_point == "x1" and selected_curve != None:
+                selected_curve.x1 = x
+                selected_curve.y1 = y
+                
+                x1_slider.value = x
+                y1_slider.value = y
+            elif selected_point == "x2" and selected_curve != None:
+                selected_curve.x2 = x
+                selected_curve.y2 = y
+                
+                x2_slider.value = x
+                y2_slider.value = y
+                
+            elif selected_point == "x3" and selected_curve != None:
+                selected_curve.x3 = x
+                selected_curve.y3 = y
+                
+                endX = x
+                endY = y
                 
                     
                 
