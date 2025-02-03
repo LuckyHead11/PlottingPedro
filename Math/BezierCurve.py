@@ -22,7 +22,7 @@ class BezierCurve:
     def is_line(self):
         if self.x1 == self.x0 and self.y1 == self.y0 and self.x2 == self.x3 and self.y2 == self.y3: return True
         else: return False
-    def to_pathchain(self, divider):
+    def to_pathchain(self, divider, indent=False):
         # .addPath(new BezierLine(new Point(scorePose), new Point(pickup1Pose)))
         # .addPath (new.BezierCurve(new Point(scorePose), new Point(parkControlPose), new Point(parkPose)))
         x0 = round(self.x0 / divider, 2)
@@ -34,7 +34,13 @@ class BezierCurve:
         x3 = round(self.x3 / divider, 2)
         y3 = round(self.y3 / divider, 2)
         
-        if self.is_line():
-            return f".addPath(new BezierLine(new Point(new Pose({x0}, {y0}, 0)), new Point(new Pose({x3}, {y3}, 0)))"
+        if not indent:
+            if self.is_line():
+                return f".addPath(new BezierLine(new Point(new Pose({y0}, {x0}, Math.toRadians(0))), new Point(new Pose({y3}, {x3}, Math.toRadians(0)))))"
+            else:
+                return f".addPath(new BezierCurve(new Point(new Pose({y0}, {x0}, Math.toRadians(0))), new Pose({y1}, {x1}), new Point({y2}, {x2}), new Point(new Pose({y3}, {x3}, Math.toRadians(0)))))"
         else:
-            return f".addPath(new BezierCurve(new Point(new Pose({x0}, {y0}, 0)), new Point(new Pose({x1}, {y1}, 0)), new Point(new Pose({x2}, {y2}, 0)), new Point(new Pose({x3}, {y3}, 0)))"
+            if self.is_line():
+                return f".addPath(new BezierLin\nnew Point(new Pose({y0}, {x0}, Math.toRadians(0))), \nnew Point(new Pose({y3}, {x3}, Math.toRadians(0)))))"
+            else:
+                return f".addPath(new BezierCurve(\nnew Point(new Pose({y0}, {x0}, Math.toRadians(0))), \nnew Pose({y1}, {x1}), \nnew Point({y2}, {x2}), \nnew Point(new Pose({y3}, {x3}, Math.toRadians(0)))))"

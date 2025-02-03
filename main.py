@@ -23,7 +23,6 @@ from UI.Slider import Slider
 from UI.Button import Button
 import tkinter as tk
 from tkinter import scrolledtext
-from PIL import Image
 
 
 with open('config.txt', 'r') as file:
@@ -109,10 +108,10 @@ def draw():
             x1, y1 = curve.calculate_curve(t)
             if (current_curve == curves.index(curve)):
                 if x0 < 1080 // scale and y0 < 1080 // scale and x1 < 1080 // scale and y1 < 1080 // scale:
-                    pygame.draw.line(screen, WHITE, (int(x0), int(y0)), (int(x1), int(y1)), 3 // scale)
+                    pygame.draw.line(screen, WHITE, (int(x0), int(y0)), (int(x1), int(y1)), 3)
             else:
                 if x0 < 1080 // scale and y0 < 1080 // scale and x1 < 1080 // scale and y1 < 1080 // scale:
-                    pygame.draw.line(screen, LIGHT_GRAY, (int(x0), int(y0)), (int(x1), int(y1)), 3 // scale) 
+                    pygame.draw.line(screen, LIGHT_GRAY, (int(x0), int(y0)), (int(x1), int(y1)), 3) 
                     
         
         pygame.draw.circle(screen, GREEN, (int(curve.x0), int(curve.y0)), 6 // scale) # Start point
@@ -133,13 +132,22 @@ def draw():
     #Drawing text that shows the mouse position live like this (x,y)
     
     font = pygame.font.Font(None, 36 // (scale))
+    font_medium = pygame.font.Font(None, 30 // (scale))
     font_small = pygame.font.Font(None, 26 // (scale))
-    text = font.render(f"({current_mouseX},{current_mouseY})", True, (255, 255, 255))
+    text = font.render(f"({current_mouseY},{current_mouseX})", True, (255, 255, 255))
     screen.blit(text, (1100 // scale,(1080-36) // scale))
     
     text = font_small.render("Created by Team #14840 DCS MechWarriors", True, (255, 255, 255))
     screen.blit(text, ((1600 // scale) - (1080 // scale) - (text.get_width() // 2), 5))
     
+    if len(curves) != 0:
+        path = curves[current_curve].to_pathchain(divider, indent=True)
+        lines = path.split('\n')
+        y_offset = 600 // scale  # Start drawing below the buttons
+        for line in lines:
+            text = font_small.render(line, True, WHITE)
+            screen.blit(text, (1100 // scale, y_offset))
+            y_offset += 20 // scale
     #On the right side of the screen, draw 2 sliders for the x1 and y1 values, and the x2 and y2 values
     x1_slider.draw(screen)
     y1_slider.draw(screen)
