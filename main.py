@@ -18,9 +18,9 @@ if not os.path.exists('config.txt'):
     generate_config()
 
 #Making sure there is a config file before importing the classes
-from BezierCurve import BezierCurve
-from Slider import Slider
-from Button import Button
+from Math.BezierCurve import BezierCurve
+from UI.Slider import Slider
+from UI.Button import Button
 import tkinter as tk
 from tkinter import scrolledtext
 from PIL import Image
