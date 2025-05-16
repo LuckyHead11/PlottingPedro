@@ -21,8 +21,10 @@ if not os.path.exists('config.txt'):
 from Math.BezierCurve import BezierCurve
 from UI.Slider import Slider
 from UI.Button import Button
+from UI.TextInput import TextInput
 import tkinter as tk
 from tkinter import scrolledtext
+
 
 
 with open('config.txt', 'r') as file:
@@ -34,14 +36,13 @@ with open('config.txt', 'r') as file:
 if scale > 3: scale = 3
 
 divider = (1080 // scale) / 144
-print(divider)
 curves = []
 current_curve = 0
+current_beziercurve = None
 
 STATES = {
     "START": 0,
     "END": 1
-    
 }
 
 # Define colors
@@ -59,15 +60,31 @@ DARK_GRAY = (30, 30, 30)
 TRANSPARENT_WHITE = (255, 255, 255, 128)
 
 # Initialize sliders and buttons
-x1_slider = Slider(1100 // scale, 100 // scale, 300 // scale, 20 // scale, 0, 1080 // scale, 0, "x1", scale=scale)
-y1_slider = Slider(1100 // scale, 200 // scale, 300 // scale, 20 // scale, 0, 1080 // scale, 0, "y1", scale=scale)
-x2_slider = Slider(1100 // scale, 300 // scale, 300 // scale, 20 // scale, 0, 1080 // scale, 0, "x2", scale=scale)
-y2_slider = Slider(1100 // scale, 400 // scale, 300 // scale, 20 // scale, 0, 1080 // scale, 0, "y2", scale=scale)
+# x1_slider = Slider(1100 // scale, 100 // scale, 300 // scale, 20 // scale, 0, 1080 // scale, 0, "x1", scale=scale)
+# y1_slider = Slider(1100 // scale, 200 // scale, 300 // scale, 20 // scale, 0, 1080 // scale, 0, "y1", scale=scale)
+# x2_slider = Slider(1100 // scale, 300 // scale, 300 // scale, 20 // scale, 0, 1080 // scale, 0, "x2", scale=scale)
+# y2_slider = Slider(1100 // scale, 400 // scale, 300 // scale, 20 // scale, 0, 1080 // scale, 0, "y2", scale=scale)
 
-linear_button = Button(1100 // scale, 450 // scale, 300 // scale, 45 // scale, "Linearize (Bezier Line)", 36 // scale, BLACK, WHITE, LIGHT_GRAY, border_radius=10//scale, border_width=2//scale)
-clear_button = Button(1100 // scale, 500 // scale, 140 // scale, 45 // scale, "Clear", 36 // scale, BLACK, WHITE, LIGHT_GRAY, border_radius=10//scale, border_width=2//scale)
-delete_button = Button(1250 // scale, 500 // scale, 150 // scale, 45 // scale, "Delete", 36 // scale, BLACK, WHITE, LIGHT_GRAY, border_radius=10//scale, border_width=2//scale)
-export_button = Button(1100 // scale, 550 // scale, 300 // scale, 45 // scale, "Export Pathchain", 36 // scale, BLACK, WHITE, LIGHT_GRAY, border_radius=10//scale, border_width=2//scale)
+# Start point inputs
+startXInput = TextInput(1200 // scale, 50 // scale, 100 // scale, 45 // scale, font_size=36 // scale, text_color=WHITE, bg_color=DARK_GRAY, border_color=WHITE, border_radius=10//scale, border_width=2//scale, scale=scale)
+startYInput = TextInput(1325 // scale, 50 // scale, 100 // scale, 45 // scale, font_size=36 // scale, text_color=WHITE, bg_color=DARK_GRAY, border_color=WHITE, border_radius=10//scale, border_width=2//scale, scale=scale)
+
+# First control point inputs
+x1Input = TextInput(1200 // scale, 100 // scale, 100 // scale, 45 // scale, font_size=36 // scale, text_color=WHITE, bg_color=DARK_GRAY, border_color=WHITE, border_radius=10//scale, border_width=2//scale, scale=scale)
+y1Input = TextInput(1325 // scale, 100 // scale, 100 // scale, 45 // scale, font_size=36 // scale, text_color=WHITE, bg_color=DARK_GRAY, border_color=WHITE, border_radius=10//scale, border_width=2//scale, scale=scale)
+
+# Second control point inputs
+x2Input = TextInput(1200 // scale, 150 // scale, 100 // scale, 45 // scale, font_size=36 // scale, text_color=WHITE, bg_color=DARK_GRAY, border_color=WHITE, border_radius=10//scale, border_width=2//scale, scale=scale)
+y2Input = TextInput(1325 // scale, 150 // scale, 100 // scale, 45 // scale, font_size=36 // scale, text_color=WHITE, bg_color=DARK_GRAY, border_color=WHITE, border_radius=10//scale, border_width=2//scale, scale=scale)
+
+# End point inputs
+endXInput = TextInput(1200 // scale, 200 // scale, 100 // scale, 45 // scale, font_size=36 // scale, text_color=WHITE, bg_color=DARK_GRAY, border_color=WHITE, border_radius=10//scale, border_width=2//scale, scale=scale)
+endYInput = TextInput(1325 // scale, 200 // scale, 100 // scale, 45 // scale, font_size=36 // scale, text_color=WHITE, bg_color=DARK_GRAY, border_color=WHITE, border_radius=10//scale, border_width=2//scale, scale=scale)
+
+linear_button = Button(1160 // scale, 275 // scale, 300 // scale, 45 // scale, "Linearize (Bezier Line)", 36 // scale, BLACK, WHITE, LIGHT_GRAY, border_radius=10//scale, border_width=2//scale)
+clear_button = Button(1160 // scale, 325 // scale, 140 // scale, 45 // scale, "Clear", 36 // scale, BLACK, WHITE, LIGHT_GRAY, border_radius=10//scale, border_width=2//scale)
+delete_button = Button(1310 // scale, 325 // scale, 150 // scale, 45 // scale, "Delete", 36 // scale, BLACK, WHITE, LIGHT_GRAY, border_radius=10//scale, border_width=2//scale)
+export_button = Button(1160 // scale, 375 // scale, 300 // scale, 45 // scale, "Export Pathchain", 36 // scale, BLACK, WHITE, LIGHT_GRAY, border_radius=10//scale, border_width=2//scale)
 state = STATES["START"]
 
 startX = 0
@@ -91,8 +108,24 @@ width, height = 1600 // scale, 1080 // scale
 screen = pygame.display.set_mode((width, height))
 pygame.display.set_caption("Plotting Pedro")
 
+def check_if_text_input_active():
+    global startxInput, startYInput, endXInput, endYInput, x1Input, y1Input, x2Input, y2Input
+    none_active = True
+    if startXInput.active or startYInput.active or endXInput.active or endYInput.active or x1Input.active or y1Input.active or x2Input.active or y2Input.active:
+        none_active = False
+    return none_active
+
 def field_to_inches(x, y):
     return round(x / divider, 1), round(y / divider, 1)
+
+def field_to_inches_single(a):
+    return round(a / divider, 1)
+
+def inches_to_field(x, y):
+    return round(x * divider), round(y * divider)
+
+def inches_to_field_single(a):
+    return round(a * divider)
 
 def draw():
     screen.fill(DARK_GRAY) # Clear the screen
@@ -149,22 +182,44 @@ def draw():
             screen.blit(text, (1100 // scale, y_offset))
             y_offset += 20 // scale
     #On the right side of the screen, draw 2 sliders for the x1 and y1 values, and the x2 and y2 values
-    x1_slider.draw(screen)
-    y1_slider.draw(screen)
-    x2_slider.draw(screen)
-    y2_slider.draw(screen)
+    startXInput.draw(screen)
+    startYInput.draw(screen)
+    endXInput.draw(screen)
+    endYInput.draw(screen)
+    x1Input.draw(screen)
+    y1Input.draw(screen)
+    x2Input.draw(screen)
+    y2Input.draw(screen)
+    
     linear_button.draw(screen)
     clear_button.draw(screen)
     delete_button.draw(screen)
     export_button.draw(screen)
+    
+    start_label = font.render("Start", True, WHITE)
+    screen.blit(start_label, (1100 // scale, 60 // scale))
+
+    first_label = font.render("Point 1", True, WHITE)
+    screen.blit(first_label, (1100 // scale, 110 // scale))
+
+    second_label = font.render("Point 2", True, WHITE)
+    screen.blit(second_label, (1100 // scale, 160 // scale))
+
+    end_label = font.render("End", True, WHITE)
+    screen.blit(end_label, (1100 // scale, 210 // scale))
+    
+    x_label = font.render("X", True, WHITE)
+    screen.blit(x_label, (1240 // scale, 15 // scale))
+    y_label = font.render("Y", True, WHITE)
+    screen.blit(y_label, (1360 // scale, 15 // scale))
 
 def logic():
-    global startX, startY, endX, endY, state, current_curve, selected_curve, selected_point, scale, divider
+    global startX, startY, endX, endY, state, current_curve, selected_curve, selected_point, scale, divider, current_beziercurve
     if len(curves) != 0:
-        x1_value = x1_slider.value
-        y1_value = y1_slider.value
-        x2_value = x2_slider.value
-        y2_value = y2_slider.value
+        x1_value = x1Input.getValue()
+        y1_value = y1Input.getValue()
+        x2_value = x2Input.getValue()
+        y2_value = y2Input.getValue()
         
         current_beziercurve = curves[current_curve]
         
@@ -176,15 +231,30 @@ def logic():
         for curve in curves:
             if curve.connectingCurve not in curves and curves.index(curve) != 0:
                 delete_certain_curve(curves.index(curve))
-            
+
+    if current_beziercurve != None:
+        if field_to_inches_single(startXInput.getValue()) != current_beziercurve.x0 or field_to_inches_single(startYInput.getValue()) != current_beziercurve.y0:
+            current_beziercurve.x0 = startXInput.getValue()
+            current_beziercurve.y0 = startYInput.getValue()
+            startX = startXInput.getValue()
+            startY = startYInput.getValue()
+        if field_to_inches_single(endXInput.getValue()) != current_beziercurve.x3 or field_to_inches_single(endYInput.getValue()) != current_beziercurve.y3:
+            current_beziercurve.x3 = endXInput.getValue()
+            current_beziercurve.y3 = endYInput.getValue()
+            endX = endXInput.getValue()
+            endY = endYInput.getValue()
 def clear():
     global curves, current_curve, startX, startY, endX, endY, selected_curve, selected_point, state
     curves = []
     current_curve = 0
-    x1_slider.value = 0
-    y1_slider.value = 0
-    x2_slider.value = 0
-    y2_slider.value = 0
+    startXInput.setValue(0)
+    startYInput.setValue(0)
+    x1Input.setValue(0)
+    y1Input.setValue(0)
+    x2Input.setValue(0)
+    y2Input.setValue(0)
+    endXInput.setValue(0)
+    endYInput.setValue(0)
     startX = 0
     startY = 0
     endX = 0
@@ -201,34 +271,43 @@ def delete():
         curves.remove(curves[current_curve])
         current_curve -= 1
         selected_curve = curves[current_curve]
-        x1_slider.value = curves[current_curve].x1
-        y1_slider.value = curves[current_curve].y1
-        x2_slider.value = curves[current_curve].x2
-        y2_slider.value = curves[current_curve].y2
+        
+        startXInput.setValue(curves[current_curve].x0)
+        startYInput.setValue(curves[current_curve].y0)
+        x1Input.setValue(curves[current_curve].x1)
+        y1Input.setValue(curves[current_curve].y1)
+        x2Input.setValue(curves[current_curve].x2)
+        y2Input.setValue(curves[current_curve].y2)
+        endXInput.setValue(curves[current_curve].x3)
+        endYInput.setValue(curves[current_curve].y3)
     else:
         clear()
 def delete_certain_curve(curve):
     
     if curve != None:
         curves.pop(curve)
-        x1_slider.value = curves[-1].x1
-        y1_slider.value = curves[-1].y1
-        x2_slider.value = curves[-1].x2
-        y2_slider.value = curves[-1].y2
+    
+        x1Input.setValue(curves[-1].x1)
+        y1Input.setValue(curves[-1].y1)
+        x2Input.setValue(curves[-1].x2)
+        y2Input.setValue(curves[-1].y2)
 def change_curve(current_curve_id, new_curve_id):
     global current_curve
     if new_curve_id < 0:
         new_curve_id = len(curves) - 1
     elif new_curve_id > len(curves) - 1:
         new_curve_id = 0
-        
-    x1_slider.value = curves[new_curve_id].x1
-    y1_slider.value = curves[new_curve_id].y1
-    x2_slider.value = curves[new_curve_id].x2
-    y2_slider.value = curves[new_curve_id].y2
     
+    startXInput.setValue(curves[new_curve_id].x0)
+    startYInput.setValue(curves[new_curve_id].y0)
+    x1Input.setValue(curves[new_curve_id].x1)
+    y1Input.setValue(curves[new_curve_id].y1)
+    x2Input.setValue(curves[new_curve_id].x2)
+    y2Input.setValue(curves[new_curve_id].y2)
+    endXInput.setValue(curves[new_curve_id].x3)
+    endYInput.setValue(curves[new_curve_id].y3)
     current_curve = new_curve_id
-    
+
 # Main loop
 running = True
 while running:
@@ -238,27 +317,28 @@ while running:
         if event.type == pygame.MOUSEBUTTONDOWN:
             mouse_x, mouse_y = pygame.mouse.get_pos()
             if event.button == 1:
-                for curve in curves:
-                    if (mouse_x - curve.x0)**2 + (mouse_y - curve.y0)**2 < 36:
+                if current_beziercurve != None:
+                    if (mouse_x - current_beziercurve.x0)**2 + (mouse_y - current_beziercurve.y0)**2 < 36:
                         selected_point = "x0"
-                        selected_curve = curve
-                    elif (mouse_x - curve.x1)**2 + (mouse_y - curve.y1)**2 < 36:
+                        selected_curve = current_beziercurve
+                    elif (mouse_x - current_beziercurve.x1)**2 + (mouse_y - current_beziercurve.y1)**2 < 36:
                         selected_point = "x1"
-                        selected_curve = curve
-                    elif (mouse_x - curve.x2)**2 + (mouse_y - curve.y2)**2 < 36:
+                        selected_curve = current_beziercurve
+                    elif (mouse_x - current_beziercurve.x2)**2 + (mouse_y - current_beziercurve.y2)**2 < 36:
                         selected_point = "x2"
-                        selected_curve = curve
-                    elif (mouse_x - curve.x3)**2 + (mouse_y - curve.y3)**2 < 36:
+                        selected_curve = current_beziercurve
+                    elif (mouse_x - current_beziercurve.x3)**2 + (mouse_y - current_beziercurve.y3)**2 < 36:
                         selected_point = "x3"
-                        selected_curve = curve
+                        selected_curve = current_beziercurve
                         
                 if linear_button.hovered:
                     if len(curves) != 0:
                         curves[current_curve].linearize()
-                        x1_slider.value = curves[current_curve].x1
-                        y1_slider.value = curves[current_curve].y1
-                        x2_slider.value = curves[current_curve].x2
-                        y2_slider.value = curves[current_curve].y2
+                        
+                        x1Input.setValue(curves[current_curve].x1)
+                        y1Input.setValue(curves[current_curve].y1)
+                        x2Input.setValue(curves[current_curve].x2)
+                        y2Input.setValue(curves[current_curve].y2)
                 elif clear_button.hovered:
                     clear()
                 elif delete_button.hovered:
@@ -269,7 +349,7 @@ while running:
                         path += f"\n    {curve.to_pathchain(divider)}"
                     path += "\n.build();"
                     root = tk.Tk()
-                    root.title("Exported Pathchain")
+
                     text_area = scrolledtext.ScrolledText(root, wrap=tk.WORD, width=60, height=20)
                     text_area.pack(padx=10, pady=10)
                     text_area.insert(tk.INSERT, path)
@@ -277,38 +357,48 @@ while running:
                     root.mainloop()
                 elif selected_point != None:
                     pass
-                else:
-                    if state == STATES["START"]:
-                        #If thed mouse position is in the image
-                        x0, y0 = pygame.mouse.get_pos()
-                        if x0 < 1080 // scale and y0 < 1080 // scale:
-                            startX = x0
-                            startY = y0
-                            state = STATES["END"]
+            if event.button == 3:  # Right click
+                if state == STATES["START"]:
+                    #If thed mouse position is in the image
+                    x0, y0 = pygame.mouse.get_pos()
+                    if x0 < 1080 // scale and y0 < 1080 // scale:
+                        startX = x0
+                        startY = y0
+                        state = STATES["END"]
+                        
+                        startXInput.setValue(startX)
+                        startYInput.setValue(startY)        
                             
-                    elif state == STATES["END"]:
-                        x3, y3 = pygame.mouse.get_pos()
-                        if x3 < 1080 // scale and y3 < 1080 // scale:
-                            if endX and endY != 0:
-                                startX = endX
-                                startY = endY
-                            endX = x3
-                            endY = y3
-                            
-                            if (len(curves) == 0):
-                                curves.append(BezierCurve(startX, startY, startX+15, startY, endX+15, endY,endX, endY, None))
-                            else:
-                                last_curve = curves[-1]
-                                curves.append(BezierCurve(curves[-1].x3, curves[-1].y3, startX-15,startY, endX-15, endY,endX, endY, last_curve))
-                            current_curve = len(curves) - 1
-                            x1_slider.value = curves[current_curve].x1
-                            y1_slider.value = curves[current_curve].y1
-                            x2_slider.value = curves[current_curve].x2
-                            y2_slider.value = curves[current_curve].y2
+                elif state == STATES["END"]:
+                    x3, y3 = pygame.mouse.get_pos()
+                    if x3 < 1080 // scale and y3 < 1080 // scale:
+                        if endX and endY != 0:
+                            startX = endX
+                            startY = endY
+
+                            startXInput.setValue(startX)
+                            startYInput.setValue(startY)
+                        endX = x3
+                        endY = y3
+                        
+                        endXInput.setValue(endX)
+                        endYInput.setValue(endY)
+                        
+                        if (len(curves) == 0):
+                            curves.append(BezierCurve(startX, startY, startX+15, startY, endX+15, endY,endX, endY, None))
+                        else:
+                            last_curve = curves[-1]
+                            curves.append(BezierCurve(curves[-1].x3, curves[-1].y3, startX-15,startY, endX-15, endY,endX, endY, last_curve))
+                        current_curve = len(curves) - 1
+                        
+                        x1Input.setValue(curves[current_curve].x1)
+                        y1Input.setValue(curves[current_curve].y1)
+                        x2Input.setValue(curves[current_curve].x2)
+                        y2Input.setValue(curves[current_curve].y2)
         if event.type == pygame.KEYDOWN:
-            if event.key == pygame.K_LEFT:
+            if event.key == pygame.K_LEFT and check_if_text_input_active():
                 change_curve(current_curve, current_curve - 1)
-            if event.key == pygame.K_RIGHT:
+            if event.key == pygame.K_RIGHT and check_if_text_input_active():
                 change_curve(current_curve, current_curve + 1)
             if event.key == pygame.K_DELETE:
                 delete()
@@ -339,18 +429,22 @@ while running:
                     
                     selected_curve.connectingCurve.x3 = x
                     selected_curve.connectingCurve.y3 = y
+
+                    startXInput.setValue(x)
+                    startYInput.setValue(y)
+
             elif selected_point == "x1" and selected_curve != None:
                 selected_curve.x1 = x
                 selected_curve.y1 = y
                 
-                x1_slider.value = x
-                y1_slider.value = y
+                x1Input.setValue(x)
+                y1Input.setValue(y)
             elif selected_point == "x2" and selected_curve != None:
                 selected_curve.x2 = x
                 selected_curve.y2 = y
                 
-                x2_slider.value = x
-                y2_slider.value = y
+                x2Input.setValue(x)
+                y2Input.setValue(y)
                 
             elif selected_point == "x3" and selected_curve != None:
                 selected_curve.x3 = x
@@ -359,18 +453,26 @@ while running:
                 endX = x
                 endY = y
                 
+                endXInput.setValue(x)
+                endYInput.setValue(y)
+                
                     
                 
                 
             
-        x1_slider.handle_event(event)
-        y1_slider.handle_event(event)
-        x2_slider.handle_event(event)
-        y2_slider.handle_event(event)
         linear_button.handle_event(event)
         clear_button.handle_event(event)
         delete_button.handle_event(event)
         export_button.handle_event(event)
+        
+        x1Input.handle_event(event)
+        y1Input.handle_event(event)
+        x2Input.handle_event(event)
+        y2Input.handle_event(event)
+        startXInput.handle_event(event)
+        startYInput.handle_event(event)
+        endXInput.handle_event(event)
+        endYInput.handle_event(event)
         
     # Fill the screen with a color (optional)
     draw()
