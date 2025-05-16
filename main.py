@@ -2,6 +2,7 @@ import os
 import json
 from re import X
 from sqlite3 import connect
+from turtle import update
 import pygame
 import sys
 def generate_config():
@@ -65,26 +66,29 @@ TRANSPARENT_WHITE = (255, 255, 255, 128)
 # x2_slider = Slider(1100 // scale, 300 // scale, 300 // scale, 20 // scale, 0, 1080 // scale, 0, "x2", scale=scale)
 # y2_slider = Slider(1100 // scale, 400 // scale, 300 // scale, 20 // scale, 0, 1080 // scale, 0, "y2", scale=scale)
 
+value_slider = Slider(1160 // scale, 275 // scale, 300 // scale, 20 // scale, 0, 144, 0, "Value", scale=scale)
 # Start point inputs
-startXInput = TextInput(1200 // scale, 50 // scale, 100 // scale, 45 // scale, font_size=36 // scale, text_color=WHITE, bg_color=DARK_GRAY, border_color=WHITE, border_radius=10//scale, border_width=2//scale, scale=scale)
-startYInput = TextInput(1325 // scale, 50 // scale, 100 // scale, 45 // scale, font_size=36 // scale, text_color=WHITE, bg_color=DARK_GRAY, border_color=WHITE, border_radius=10//scale, border_width=2//scale, scale=scale)
+startXInput = TextInput(1200 // scale, 50 // scale, 100 // scale, 45 // scale, font_size=36 // scale, text_color=WHITE, bg_color=DARK_GRAY, border_color=WHITE, border_radius=10//scale, border_width=2//scale, scale=scale, connectedSlider=value_slider)
+startYInput = TextInput(1325 // scale, 50 // scale, 100 // scale, 45 // scale, font_size=36 // scale, text_color=WHITE, bg_color=DARK_GRAY, border_color=WHITE, border_radius=10//scale, border_width=2//scale, scale=scale, connectedSlider=value_slider)
 
 # First control point inputs
-x1Input = TextInput(1200 // scale, 100 // scale, 100 // scale, 45 // scale, font_size=36 // scale, text_color=WHITE, bg_color=DARK_GRAY, border_color=WHITE, border_radius=10//scale, border_width=2//scale, scale=scale)
-y1Input = TextInput(1325 // scale, 100 // scale, 100 // scale, 45 // scale, font_size=36 // scale, text_color=WHITE, bg_color=DARK_GRAY, border_color=WHITE, border_radius=10//scale, border_width=2//scale, scale=scale)
+x1Input = TextInput(1200 // scale, 100 // scale, 100 // scale, 45 // scale, font_size=36 // scale, text_color=WHITE, bg_color=DARK_GRAY, border_color=WHITE, border_radius=10//scale, border_width=2//scale, scale=scale, connectedSlider=value_slider)
+y1Input = TextInput(1325 // scale, 100 // scale, 100 // scale, 45 // scale, font_size=36 // scale, text_color=WHITE, bg_color=DARK_GRAY, border_color=WHITE, border_radius=10//scale, border_width=2//scale, scale=scale, connectedSlider=value_slider)
 
 # Second control point inputs
-x2Input = TextInput(1200 // scale, 150 // scale, 100 // scale, 45 // scale, font_size=36 // scale, text_color=WHITE, bg_color=DARK_GRAY, border_color=WHITE, border_radius=10//scale, border_width=2//scale, scale=scale)
-y2Input = TextInput(1325 // scale, 150 // scale, 100 // scale, 45 // scale, font_size=36 // scale, text_color=WHITE, bg_color=DARK_GRAY, border_color=WHITE, border_radius=10//scale, border_width=2//scale, scale=scale)
+x2Input = TextInput(1200 // scale, 150 // scale, 100 // scale, 45 // scale, font_size=36 // scale, text_color=WHITE, bg_color=DARK_GRAY, border_color=WHITE, border_radius=10//scale, border_width=2//scale, scale=scale, connectedSlider=value_slider)
+y2Input = TextInput(1325 // scale, 150 // scale, 100 // scale, 45 // scale, font_size=36 // scale, text_color=WHITE, bg_color=DARK_GRAY, border_color=WHITE, border_radius=10//scale, border_width=2//scale, scale=scale, connectedSlider=value_slider)
 
 # End point inputs
-endXInput = TextInput(1200 // scale, 200 // scale, 100 // scale, 45 // scale, font_size=36 // scale, text_color=WHITE, bg_color=DARK_GRAY, border_color=WHITE, border_radius=10//scale, border_width=2//scale, scale=scale)
-endYInput = TextInput(1325 // scale, 200 // scale, 100 // scale, 45 // scale, font_size=36 // scale, text_color=WHITE, bg_color=DARK_GRAY, border_color=WHITE, border_radius=10//scale, border_width=2//scale, scale=scale)
+endXInput = TextInput(1200 // scale, 200 // scale, 100 // scale, 45 // scale, font_size=36 // scale, text_color=WHITE, bg_color=DARK_GRAY, border_color=WHITE, border_radius=10//scale, border_width=2//scale, scale=scale, connectedSlider=value_slider)
+endYInput = TextInput(1325 // scale, 200 // scale, 100 // scale, 45 // scale, font_size=36 // scale, text_color=WHITE, bg_color=DARK_GRAY, border_color=WHITE, border_radius=10//scale, border_width=2//scale, scale=scale, connectedSlider=value_slider)
 
-linear_button = Button(1160 // scale, 275 // scale, 300 // scale, 45 // scale, "Linearize (Bezier Line)", 36 // scale, BLACK, WHITE, LIGHT_GRAY, border_radius=10//scale, border_width=2//scale)
-clear_button = Button(1160 // scale, 325 // scale, 140 // scale, 45 // scale, "Clear", 36 // scale, BLACK, WHITE, LIGHT_GRAY, border_radius=10//scale, border_width=2//scale)
-delete_button = Button(1310 // scale, 325 // scale, 150 // scale, 45 // scale, "Delete", 36 // scale, BLACK, WHITE, LIGHT_GRAY, border_radius=10//scale, border_width=2//scale)
-export_button = Button(1160 // scale, 375 // scale, 300 // scale, 45 // scale, "Export Pathchain", 36 // scale, BLACK, WHITE, LIGHT_GRAY, border_radius=10//scale, border_width=2//scale)
+
+
+linear_button = Button(1160 // scale, 325 // scale, 300 // scale, 45 // scale, "Linearize (Bezier Line)", 36 // scale, BLACK, WHITE, LIGHT_GRAY, border_radius=10//scale, border_width=2//scale)
+clear_button = Button(1160 // scale, 375 // scale, 140 // scale, 45 // scale, "Clear", 36 // scale, BLACK, WHITE, LIGHT_GRAY, border_radius=10//scale, border_width=2//scale)
+delete_button = Button(1310 // scale, 375 // scale, 150 // scale, 45 // scale, "Delete", 36 // scale, BLACK, WHITE, LIGHT_GRAY, border_radius=10//scale, border_width=2//scale)
+export_button = Button(1160 // scale, 425 // scale, 300 // scale, 45 // scale, "Export Pathchain", 36 // scale, BLACK, WHITE, LIGHT_GRAY, border_radius=10//scale, border_width=2//scale)
 state = STATES["START"]
 
 startX = 0
@@ -100,6 +104,7 @@ field_image = pygame.image.load(field_img)
 field_image = pygame.transform.scale(field_image, (field_image.get_width() // scale, field_image.get_height() // scale))
 selected_point = None
 selected_curve = None
+selected_input = "none"
 # Initialize Pygame
 pygame.init()
 
@@ -115,17 +120,46 @@ def check_if_text_input_active():
         none_active = False
     return none_active
 
+def update_active_textbox():
+    global startXInput, startYInput, endXInput, endYInput, x1Input, y1Input, x2Input, y2Input, selected_input
+    match True:
+        case startXInput.active:
+            if selected_input != "startX": value_slider.value = field_to_inches_single(startXInput.getValue())
+            selected_input = "startX"
+        case startYInput.active:
+            if selected_input != "startY": value_slider.value = field_to_inches_single(startYInput.getValue())
+            selected_input = "startY"
+        case endXInput.active:
+            if selected_input != "endX": value_slider.value = field_to_inches_single(endXInput.getValue())
+            selected_input = "endX"
+        case endYInput.active:
+            if selected_input != "endY": value_slider.value = field_to_inches_single(endYInput.getValue())
+            selected_input = "endY"
+        case x1Input.active:
+            if selected_input != "x1": value_slider.value = field_to_inches_single(x1Input.getValue())
+            selected_input = "x1"
+        case y1Input.active:
+            if selected_input != "y1": value_slider.value = field_to_inches_single(y1Input.getValue())
+            selected_input = "y1"
+        case x2Input.active:
+            if selected_input != "x2": value_slider.value = field_to_inches_single(x2Input.getValue())
+            selected_input = "x2"
+        case y2Input.active:
+            if selected_input != "y2": value_slider.value = field_to_inches_single(y2Input.getValue())
+            selected_input = "y2"
+        case _:
+            selected_input = "none"
 def field_to_inches(x, y):
-    return round(x / divider, 1), round(y / divider, 1)
+    return round(x / divider, 2), round(y / divider, 2)
 
 def field_to_inches_single(a):
-    return round(a / divider, 1)
+    return round(a / divider, 2)
 
 def inches_to_field(x, y):
-    return round(x * divider), round(y * divider)
+    return round(x * divider, 2), round(y * divider, 2)
 
 def inches_to_field_single(a):
-    return round(a * divider)
+    return round(a * divider, 2)
 
 def draw():
     screen.fill(DARK_GRAY) # Clear the screen
@@ -212,9 +246,17 @@ def draw():
     screen.blit(x_label, (1240 // scale, 15 // scale))
     y_label = font.render("Y", True, WHITE)
     screen.blit(y_label, (1360 // scale, 15 // scale))
+    
+    if selected_input != "none":
+        value_slider.draw(screen)
+        # Draw a label above the slider
+        test_label = font.render(selected_input, True, WHITE)
+        test_label_x = (value_slider.x + (value_slider.width // 2)) - (test_label.get_width() // 2)
+        test_label_y = value_slider.y - (test_label.get_height())
+        screen.blit(test_label, (test_label_x, test_label_y))
 
 def logic():
-    global startX, startY, endX, endY, state, current_curve, selected_curve, selected_point, scale, divider, current_beziercurve
+    global startX, startY, endX, endY, state, current_curve, selected_curve, selected_point, scale, divider, current_beziercurve, curves
     if len(curves) != 0:
         x1_value = x1Input.getValue()
         y1_value = y1Input.getValue()
@@ -232,17 +274,69 @@ def logic():
             if curve.connectingCurve not in curves and curves.index(curve) != 0:
                 delete_certain_curve(curves.index(curve))
 
-    if current_beziercurve != None:
+    if current_beziercurve != None and len(curves) != 0:
+        current_beziercurve = curves[current_curve]
+        
+        if field_to_inches_single(startXInput.getValue()) != field_to_inches_single(current_beziercurve.x0) and selected_input == "startX":
+            value_slider.value = field_to_inches_single(startXInput.getValue())
+        elif field_to_inches_single(startYInput.getValue()) != field_to_inches_single(current_beziercurve.y0) and selected_input == "startY":
+            value_slider.value = field_to_inches_single(startYInput.getValue())
+        elif field_to_inches_single(endXInput.getValue()) != field_to_inches_single(current_beziercurve.x3) and selected_input == "endX":
+            value_slider.value = field_to_inches_single(endXInput.getValue())
+        elif field_to_inches_single(endYInput.getValue()) != field_to_inches_single(current_beziercurve.y3) and selected_input == "endY":
+            value_slider.value = field_to_inches_single(endYInput.getValue())
+        elif x1Input.getValue() != current_beziercurve.x1 and selected_input == "x1":
+            value_slider.value = field_to_inches_single(x1Input.getValue())
+        elif y1Input.getValue() != current_beziercurve.y1 and selected_input == "y1":
+            value_slider.value = field_to_inches_single(y1Input.getValue())
+        elif x2Input.getValue() != current_beziercurve.x2 and selected_input == "x2":
+            value_slider.value = field_to_inches_single(x2Input.getValue())
+        elif y2Input.getValue() != current_beziercurve.y2 and selected_input == "y2":
+            value_slider.value = field_to_inches_single(y2Input.getValue())
+
+            
         if field_to_inches_single(startXInput.getValue()) != current_beziercurve.x0 or field_to_inches_single(startYInput.getValue()) != current_beziercurve.y0:
             current_beziercurve.x0 = startXInput.getValue()
             current_beziercurve.y0 = startYInput.getValue()
             startX = startXInput.getValue()
             startY = startYInput.getValue()
+            # Update the end of the previous curve if it exists
+            if current_curve > 0:
+                curves[current_curve - 1].x3 = startX
+                curves[current_curve - 1].y3 = startY
         if field_to_inches_single(endXInput.getValue()) != current_beziercurve.x3 or field_to_inches_single(endYInput.getValue()) != current_beziercurve.y3:
             current_beziercurve.x3 = endXInput.getValue()
             current_beziercurve.y3 = endYInput.getValue()
             endX = endXInput.getValue()
             endY = endYInput.getValue()
+            # Update the start of the next curve if it exists
+            if current_curve < len(curves) - 1:
+                curves[current_curve + 1].x0 = endX
+                curves[current_curve + 1].y0 = endY  
+            
+        
+        
+    if value_slider.has_moved():
+        if selected_input == "startX":
+            startXInput.setValue(inches_to_field_single(value_slider.value))
+            startX = startXInput.getValue()
+        elif selected_input == "startY":
+            startYInput.setValue(inches_to_field_single(value_slider.value))
+            startY = startYInput.getValue()
+        elif selected_input == "endX":
+            endXInput.setValue(inches_to_field_single(value_slider.value))
+            endX = endXInput.getValue()
+        elif selected_input == "endY":
+            endYInput.setValue(inches_to_field_single(value_slider.value))
+            endY = endYInput.getValue()
+        elif selected_input == "x1":
+            x1Input.setValue(inches_to_field_single(value_slider.value))
+        elif selected_input == "y1":
+            y1Input.setValue(inches_to_field_single(value_slider.value))
+        elif selected_input == "x2":
+            x2Input.setValue(inches_to_field_single(value_slider.value))
+        elif selected_input == "y2":
+            y2Input.setValue(inches_to_field_single(value_slider.value)) 
 def clear():
     global curves, current_curve, startX, startY, endX, endY, selected_curve, selected_point, state
     curves = []
@@ -292,7 +386,7 @@ def delete_certain_curve(curve):
         x2Input.setValue(curves[-1].x2)
         y2Input.setValue(curves[-1].y2)
 def change_curve(current_curve_id, new_curve_id):
-    global current_curve
+    global current_curve, current_beziercurve
     if new_curve_id < 0:
         new_curve_id = len(curves) - 1
     elif new_curve_id > len(curves) - 1:
@@ -307,6 +401,8 @@ def change_curve(current_curve_id, new_curve_id):
     endXInput.setValue(curves[new_curve_id].x3)
     endYInput.setValue(curves[new_curve_id].y3)
     current_curve = new_curve_id
+    
+    current_beziercurve = curves[current_curve]
 
 # Main loop
 running = True
@@ -349,25 +445,26 @@ while running:
                         path += f"\n    {curve.to_pathchain(divider)}"
                     path += "\n.build();"
                     root = tk.Tk()
+                    root.title("Exported PathChain")
 
-                    text_area = scrolledtext.ScrolledText(root, wrap=tk.WORD, width=60, height=20)
+                    text_area = scrolledtext.ScrolledText(root, width=60, height=20)
                     text_area.pack(padx=10, pady=10)
                     text_area.insert(tk.INSERT, path)
                     text_area.config(state=tk.DISABLED)
                     root.mainloop()
                 elif selected_point != None:
                     pass
-            if event.button == 3:  # Right click
-                if state == STATES["START"]:
-                    #If thed mouse position is in the image
+                elif state == STATES["START"]:
+                    #If the mouse position is in the image
                     x0, y0 = pygame.mouse.get_pos()
                     if x0 < 1080 // scale and y0 < 1080 // scale:
                         startX = x0
                         startY = y0
                         state = STATES["END"]
                         
-                        startXInput.setValue(startX)
-                        startYInput.setValue(startY)        
+                        startXInput.setValue(round(startX, 2))
+                        startYInput.setValue(round(startY, 2))
+                              
                             
                 elif state == STATES["END"]:
                     x3, y3 = pygame.mouse.get_pos()
@@ -376,13 +473,13 @@ while running:
                             startX = endX
                             startY = endY
 
-                            startXInput.setValue(startX)
-                            startYInput.setValue(startY)
+                            startXInput.setValue(round(startX, 2))
+                            startYInput.setValue(round(startY, 2))
                         endX = x3
                         endY = y3
                         
-                        endXInput.setValue(endX)
-                        endYInput.setValue(endY)
+                        endXInput.setValue(round(endX, 2))
+                        endYInput.setValue(round(endY, 2))
                         
                         if (len(curves) == 0):
                             curves.append(BezierCurve(startX, startY, startX+15, startY, endX+15, endY,endX, endY, None))
@@ -474,9 +571,12 @@ while running:
         endXInput.handle_event(event)
         endYInput.handle_event(event)
         
-    # Fill the screen with a color (optional)
+        value_slider.handle_event(event)
+        
+    # Update loops
     draw()
     logic()
+    update_active_textbox()
 
     # Update the display
     pygame.display.flip()
@@ -484,3 +584,5 @@ while running:
 # Quit Pygame
 pygame.quit()
 sys.exit()
+
+#

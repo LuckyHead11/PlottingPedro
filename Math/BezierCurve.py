@@ -20,7 +20,7 @@ class BezierCurve:
         self.x2 = self.x3
         self.y2 = self.y3
     def is_line(self):
-        if round(self.x1) == round(self.x0) and round(self.y1) == round(self.y0) and round(self.x2) == round(self.x3) and round(self.y2) == round(self.y3): return True
+        if self.x1 == self.x0 and self.y1 == self.y0 and self.x2 == self.x3 and self.y2 == self.y3: return True
         else: return False
     def to_pathchain(self, divider, indent=False):
         # .addPath(new BezierLine(new Point(scorePose), new Point(pickup1Pose)))
@@ -36,11 +36,11 @@ class BezierCurve:
         
         if not indent:
             if self.is_line():
-                return f".addPath(new BezierLine(new Point(new Pose({y0}, {x0}, Math.toRadians(0))), new Point(new Pose({y3}, {x3}, Math.toRadians(0)))))"
+                return f".addPath(new BezierLine(new Point({y0}, {x0}, Point.CARTESIAN), new Point({y3}, {x3}, Point.CARTESIAN)))"
             else:
-                return f".addPath(new BezierCurve(new Point(new Pose({y0}, {x0}, Math.toRadians(0))), new Pose({y1}, {x1}), new Point({y2}, {x2}), new Point(new Pose({y3}, {x3}, Math.toRadians(0)))))"
+                return f".addPath(new BezierCurve(new Point({y0}, {x0}, Point.CARTESIAN), new Point({y1}, {x1}), new Point({y2}, {x2}), new Point({y3}, {x3}, Point.CARTESIAN)))"
         else:
             if self.is_line():
-                return f".addPath(new BezierLine\nnew Point(new Pose({y0}, {x0}, Math.toRadians(0))), \nnew Point(new Pose({y3}, {x3}, Math.toRadians(0)))))"
+                return f".addPath(new BezierLine(\nnew Point({y0}, {x0}, Point.CARTESIAN), \nnew Point({y3}, {x3}, Point.CARTESIAN)))"
             else:
-                return f".addPath(new BezierCurve(\nnew Point(new Pose({y0}, {x0}, Math.toRadians(0))), \nnew Pose({y1}, {x1}), \nnew Point({y2}, {x2}), \nnew Point(new Pose({y3}, {x3}, Math.toRadians(0)))))"
+                return f".addPath(new BezierCurve(\nnew Point({y0}, {x0}, Point.CARTESIAN), \nnew Point({y1}, {x1}), \nnew Point({y2}, {x2}), \nnew Point({y3}, {x3}, Point.CARTESIAN)))"

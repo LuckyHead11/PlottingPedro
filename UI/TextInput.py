@@ -2,7 +2,7 @@ from dataclasses import field
 import pygame
 
 class TextInput:
-    def __init__(self, x, y, width, height, font_size=36, text_color=(255, 255, 255), bg_color=(50, 50, 50), border_color=(255, 255, 255), border_radius=10, border_width=2, max_chars=3, scale=1, text="0.0"):
+    def __init__(self, x, y, width, height, font_size=36, text_color=(255, 255, 255), bg_color=(50, 50, 50), border_color=(255, 255, 255), border_radius=10, border_width=2, max_chars=3, scale=1, connectedSlider=None):
         pygame.font.init()  # Initialize fonts
         self.x = x
         self.y = y
@@ -16,7 +16,7 @@ class TextInput:
         self.border_width = border_width
         self.max_chars = max_chars
         self.realValue = 0
-        self.text = text
+        self.text = "0.0"
         self.cursor_visible = True
         self.cursor_timer = 0
         self.cursor_position = 0
@@ -28,10 +28,11 @@ class TextInput:
         self.scale = scale
 
         self.divider = (1080 / scale) / 144
+        self.connectedSlider = connectedSlider
     def field_to_inches(self, a):
-        return round(a / self.divider, 1)
+        return round(a / self.divider, 2)
     def inches_to_field(self, a):
-        return round(a * self.divider, 1)
+        return round(a * self.divider, 2)
     def draw(self, screen):
         # Draw the background and border
         pygame.draw.rect(screen, self.border_color, self.rect, border_radius=self.border_radius)
@@ -58,6 +59,8 @@ class TextInput:
                 click_x = event.pos[0] - (self.x + 10)
                 self.cursor_position = self.get_cursor_from_click(click_x)
                 self.adjust_offset()
+            elif self.connectedSlider and self.connectedSlider.rect.collidepoint(event.pos) and self.active:
+                self.active = True
             else:
                 self.active = False
 
@@ -67,15 +70,12 @@ class TextInput:
                     self.text = self.text[:self.cursor_position - 1] + self.text[self.cursor_position:]
                     self.cursor_position -= 1
                 self.adjust_offset()
-            elif (event.unicode.isdigit() or event.unicode == '.'):
-                new_value = float(self.text[:self.cursor_position] + event.unicode + self.text[self.cursor_position:])
-                if new_value <= 144 and new_value >= 0:
-                    # Allow only one decimal point
-                    if event.unicode == '.' and '.' in self.text:
-                        return
-                    self.text = self.text[:self.cursor_position] + event.unicode + self.text[self.cursor_position:]
+            elif event.unicode.isdigit():
+                new_text = self.text[:self.cursor_position] + event.unicode + self.text[self.cursor_position:]
+                if new_text == "" or (0 <= float(new_text) <= 144):
+                    self.text = new_text
                     self.cursor_position += 1
-                    self.adjust_offset()
+                self.adjust_offset()
             elif event.key == pygame.K_LEFT:
                 if self.cursor_position > 0:
                     self.cursor_position -= 1
